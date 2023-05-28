@@ -1,4 +1,6 @@
 package org.sir.stripeintegration.infrastructure.service;
 
-public class ProductService {
+import org.sir.stripeintegration.core.application.interfaces.IProductService;
+
+public class ProductService implements IProductService {
 }

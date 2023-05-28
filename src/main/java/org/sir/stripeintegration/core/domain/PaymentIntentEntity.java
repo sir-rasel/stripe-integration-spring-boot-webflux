@@ -1,4 +1,4 @@
 package org.sir.stripeintegration.core.domain;
 
-public class Transaction {
+public class PaymentIntentEntity {
 }

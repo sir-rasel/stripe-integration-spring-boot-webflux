@@ -1,4 +1,6 @@
 package org.sir.stripeintegration.infrastructure.service;
 
-public class TransactionService {
+import org.sir.stripeintegration.core.application.interfaces.ITransactionService;
+
+public class TransactionService implements ITransactionService {
 }

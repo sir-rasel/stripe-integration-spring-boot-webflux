@@ -1,4 +1,6 @@
 package org.sir.stripeintegration.infrastructure.service;
 
-public class SubscriptionService {
+import org.sir.stripeintegration.core.application.interfaces.ISubscriptionService;
+
+public class SubscriptionService implements ISubscriptionService {
 }

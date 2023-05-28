@@ -1,4 +1,6 @@
 package org.sir.stripeintegration.infrastructure.service;
 
-public class CustomerService {
+import org.sir.stripeintegration.core.application.interfaces.ICustomerService;
+
+public class CustomerService implements ICustomerService {
 }

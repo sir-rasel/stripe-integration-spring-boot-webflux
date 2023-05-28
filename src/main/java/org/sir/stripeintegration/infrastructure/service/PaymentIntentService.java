@@ -1,4 +1,6 @@
 package org.sir.stripeintegration.infrastructure.service;
 
-public class PaymentIntentService {
+import org.sir.stripeintegration.core.application.interfaces.IPaymentIntentService;
+
+public class PaymentIntentService implements IPaymentIntentService {
 }

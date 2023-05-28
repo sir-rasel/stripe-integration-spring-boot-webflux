@@ -1,4 +1,6 @@
 package org.sir.stripeintegration.infrastructure.service;
 
-public class PaymentMethodService {
+import org.sir.stripeintegration.core.application.interfaces.IPaymentMethodService;
+
+public class PaymentMethodService implements IPaymentMethodService {
 }
