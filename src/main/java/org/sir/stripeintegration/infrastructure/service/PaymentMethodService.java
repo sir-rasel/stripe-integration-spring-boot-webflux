@@ -1,16 +1,18 @@
 package org.sir.stripeintegration.infrastructure.service;
 
-import org.sir.stripeintegration.core.application.interfaces.repository.IPaymentMethodRepository;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.sir.stripeintegration.infrastructure.persistance.repository.PaymentMethodRepository;
 import org.sir.stripeintegration.core.application.interfaces.service.IPaymentMethodService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
+@Slf4j
 public class PaymentMethodService implements IPaymentMethodService {
-    @Autowired
-    private final IPaymentMethodRepository paymentMethodRepository;
+    private static final Logger logger = LoggerFactory.getLogger(PaymentMethodService.class);
+    private final PaymentMethodRepository paymentMethodRepository;
 
-    public PaymentMethodService(IPaymentMethodRepository paymentMethodRepository) {
-        this.paymentMethodRepository = paymentMethodRepository;
-    }
 }

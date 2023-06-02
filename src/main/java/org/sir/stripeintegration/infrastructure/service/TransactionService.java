@@ -1,16 +1,18 @@
 package org.sir.stripeintegration.infrastructure.service;
 
-import org.sir.stripeintegration.core.application.interfaces.repository.ITransactionRepository;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.sir.stripeintegration.infrastructure.persistance.repository.TransactionRepository;
 import org.sir.stripeintegration.core.application.interfaces.service.ITransactionService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
+@Slf4j
 public class TransactionService implements ITransactionService {
-    @Autowired
-    private final ITransactionRepository transactionRepository;
+    private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
+    private final TransactionRepository transactionRepository;
 
-    public TransactionService(ITransactionRepository transactionRepository) {
-        this.transactionRepository = transactionRepository;
-    }
 }

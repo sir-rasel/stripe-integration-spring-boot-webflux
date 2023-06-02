@@ -1,16 +1,18 @@
 package org.sir.stripeintegration.infrastructure.service;
 
-import org.sir.stripeintegration.core.application.interfaces.repository.ISubscriptionRepository;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.sir.stripeintegration.infrastructure.persistance.repository.SubscriptionRepository;
 import org.sir.stripeintegration.core.application.interfaces.service.ISubscriptionService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
+@Slf4j
 public class SubscriptionService implements ISubscriptionService {
-    @Autowired
-    private final ISubscriptionRepository subscriptionRepository;
+    private static final Logger logger = LoggerFactory.getLogger(SubscriptionService.class);
+    private final SubscriptionRepository subscriptionRepository;
 
-    public SubscriptionService(ISubscriptionRepository subscriptionRepository) {
-        this.subscriptionRepository = subscriptionRepository;
-    }
 }

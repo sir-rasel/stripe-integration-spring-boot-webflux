@@ -1,16 +1,18 @@
 package org.sir.stripeintegration.infrastructure.service;
 
-import org.sir.stripeintegration.core.application.interfaces.repository.IPaymentIntentRepository;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.sir.stripeintegration.infrastructure.persistance.repository.PaymentIntentRepository;
 import org.sir.stripeintegration.core.application.interfaces.service.IPaymentIntentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
+@Slf4j
 public class PaymentIntentService implements IPaymentIntentService {
-    @Autowired
-    private final IPaymentIntentRepository paymentIntentRepository;
+    private static final Logger logger = LoggerFactory.getLogger(PaymentIntentService.class);
+    private final PaymentIntentRepository paymentIntentRepository;
 
-    public PaymentIntentService(IPaymentIntentRepository paymentIntentRepository) {
-        this.paymentIntentRepository = paymentIntentRepository;
-    }
 }
