@@ -24,8 +24,9 @@ import java.util.UUID;
 @Slf4j
 public class CustomerService implements ICustomerService {
     private static final Logger logger = LoggerFactory.getLogger(CustomerService.class);
-    private final StripeRootService stripeRootService;
     private final CustomerRepository customerRepository;
+
+    private final StripeRootService stripeRootService;
     private final ModelMapper mapper = new ModelMapper();
 
     @Override
