@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -27,7 +29,7 @@ public class CustomerService implements ICustomerService {
     private final ModelMapper mapper = new ModelMapper();
 
     @Override
-    public Mono<CustomerDto> getCustomer(String customerId) {
+    public Mono<CustomerDto> getCustomer(UUID customerId) {
         Mono<CustomerEntity> customers = customerRepository.findById(customerId);
         return customers.map(customer -> mapper.map(customer, CustomerDto.class));
     }
@@ -42,56 +44,60 @@ public class CustomerService implements ICustomerService {
     public Mono<CustomerDto> addCustomer(CustomerCreateRequestDto requestDto) {
         try {
             CustomerDto customerDto = stripeRootService.createCustomer(requestDto);
-            saveCustomerEntity(customerDto);
-            return Mono.just(customerDto);
+            Mono<CustomerEntity> customer = saveCustomerEntity(customerDto);
+            return customer.map(customerEntity -> mapper.map(customerEntity, CustomerDto.class));
         }
         catch (Exception ex) {
             logger.error(ex.getMessage());
             throw new CustomException("Error occurred on customer create");
         }
     }
-    private void saveCustomerEntity(CustomerDto customerDto) {
+    private Mono<CustomerEntity> saveCustomerEntity(CustomerDto customerDto) {
         CustomerEntity customer = mapper.map(customerDto, CustomerEntity.class);
-        customerRepository.save(customer);
+        return customerRepository.save(customer);
     }
 
     @Override
     public Mono<CustomerDto> updateCustomer(CustomerUpdateRequestDto requestDto) {
         try {
-            CustomerDto updatedCustomer = stripeRootService.updateCustomer(requestDto);
-            updateCustomerEntity(requestDto);
-            return Mono.just(updatedCustomer);
+            return updateCustomerEntity(requestDto).map(customerEntity -> {
+                requestDto.setCustomerId(customerEntity.getCustomerId());
+
+                CustomerDto customerDto = stripeRootService.updateCustomer(requestDto);
+                customerDto.setId(requestDto.getId());
+                return customerDto;
+            });
         }
         catch (CustomException ex){
             logger.error(ex.getMessage());
             throw new CustomException("Error occurred on customer update");
         }
     }
-    private void updateCustomerEntity(CustomerUpdateRequestDto requestDto){
+    private Mono<CustomerEntity> updateCustomerEntity(CustomerUpdateRequestDto requestDto){
         Mono<CustomerEntity> customer = customerRepository.findById(requestDto.id);
-        CustomerEntity customerEntity = customer.block();
+       return customer.flatMap(customerEntity -> {
+            customerEntity.setEmail(requestDto.email);
+            customerEntity.setName(requestDto.name);
+            customerEntity.setPhone(requestDto.phone);
 
-        assert customerEntity != null;
-        customerEntity.setEmail(requestDto.email);
-        customerEntity.setName(requestDto.name);
-        customerEntity.setPhone(requestDto.phone);
-
-        customerRepository.save(customerEntity);
+            return customerRepository.save(customerEntity);
+        });
     }
 
     @Override
-    public Mono<CustomerDto> deleteCustomer(String customerId) {
+    public Mono<Void> deleteCustomer(UUID id) {
         try {
-            deleteCustomerEntity(customerId);
-            CustomerDto deletedCustomer = stripeRootService.deleteCustomer(customerId);
-            return Mono.just(deletedCustomer);
+            return getCustomer(id).flatMap(customerDto -> {
+                CustomerDto deletedCustomer = stripeRootService.deleteCustomer(customerDto.customerId);
+                return deleteCustomerEntity(id);
+            });
         }
         catch (CustomException ex){
             logger.error(ex.getMessage());
             throw new CustomException("Error occurred on customer delete");
         }
     }
-    private void deleteCustomerEntity(String customerId){
-        customerRepository.deleteById(customerId);
+    private Mono<Void> deleteCustomerEntity(UUID id){
+        return customerRepository.deleteById(id);
     }
 }

@@ -57,7 +57,7 @@ public class StripeRootService {
         params.put("phone", requestDto.phone);
 
         try {
-            Customer customer = Customer.retrieve(requestDto.id);
+            Customer customer = Customer.retrieve(requestDto.customerId);
             Customer updatedCustomer = customer.update(params);
 
             return new CustomerDto(updatedCustomer.getId(), updatedCustomer.getEmail(),

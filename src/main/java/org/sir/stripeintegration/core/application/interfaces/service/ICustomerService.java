@@ -6,10 +6,12 @@ import org.sir.stripeintegration.core.application.dtos.response.CustomerDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 public interface ICustomerService {
-    Mono<CustomerDto> getCustomer(String customerId);
+    Mono<CustomerDto> getCustomer(UUID id);
     Flux<CustomerDto> getAllCustomer(Integer limit, String startingAfter, String endingBefore);
     Mono<CustomerDto> addCustomer(CustomerCreateRequestDto requestDto);
     Mono<CustomerDto> updateCustomer(CustomerUpdateRequestDto requestDto);
-    Mono<CustomerDto> deleteCustomer(String customerId);
+    Mono<Void> deleteCustomer(UUID id);
 }

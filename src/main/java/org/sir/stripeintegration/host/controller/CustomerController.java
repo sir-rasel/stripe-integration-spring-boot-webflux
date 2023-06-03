@@ -10,16 +10,18 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/customer")
 public class CustomerController {
     private final ICustomerService customerService;
 
-    @GetMapping("/{customerId}")
+    @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<CustomerDto> getCustomer(@PathVariable String customerId) {
-        return customerService.getCustomer(customerId);
+    public Mono<CustomerDto> getCustomer(@PathVariable UUID id) {
+        return customerService.getCustomer(id);
     }
 
     @GetMapping("/all")
@@ -37,15 +39,15 @@ public class CustomerController {
         return customerService.addCustomer(requestDto);
     }
 
-    @PutMapping("/update/")
+    @PutMapping("/update")
     @ResponseStatus(HttpStatus.OK)
     public Mono<CustomerDto> updateCustomer(@RequestBody CustomerUpdateRequestDto requestDto) {
         return customerService.updateCustomer(requestDto);
     }
 
-    @DeleteMapping("/{customerId}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<CustomerDto> deleteCustomer(@PathVariable String customerId) {
-        return customerService.deleteCustomer(customerId);
+    public Mono<Void> deleteCustomer(@PathVariable UUID id) {
+        return customerService.deleteCustomer(id);
     }
 }
