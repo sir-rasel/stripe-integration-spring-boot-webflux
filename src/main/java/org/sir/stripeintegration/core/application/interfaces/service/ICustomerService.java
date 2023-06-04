@@ -1,8 +1,8 @@
 package org.sir.stripeintegration.core.application.interfaces.service;
 
-import org.sir.stripeintegration.core.application.dtos.request.CustomerCreateRequestDto;
-import org.sir.stripeintegration.core.application.dtos.request.CustomerUpdateRequestDto;
-import org.sir.stripeintegration.core.application.dtos.response.CustomerDto;
+import org.sir.stripeintegration.core.application.dtos.customer.request.CustomerCreateRequestDto;
+import org.sir.stripeintegration.core.application.dtos.customer.request.CustomerUpdateRequestDto;
+import org.sir.stripeintegration.core.application.dtos.customer.response.CustomerDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

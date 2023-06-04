@@ -1,4 +1,4 @@
-package org.sir.stripeintegration.core.application.dtos.response;
+package org.sir.stripeintegration.core.application.dtos.customer.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

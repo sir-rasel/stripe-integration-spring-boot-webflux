@@ -1,4 +1,4 @@
-package org.sir.stripeintegration.core.application.dtos.request;
+package org.sir.stripeintegration.core.application.dtos.customer.request;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
