@@ -8,6 +8,7 @@ import org.sir.stripeintegration.core.application.dtos.request.CustomerUpdateReq
 import org.sir.stripeintegration.core.application.dtos.response.CustomerDto;
 import org.sir.stripeintegration.core.application.interfaces.service.ICustomerService;
 import org.sir.stripeintegration.core.domain.CustomerEntity;
+import org.sir.stripeintegration.core.shared.constant.ErrorMessage;
 import org.sir.stripeintegration.core.shared.exceptions.CustomException;
 import org.sir.stripeintegration.infrastructure.persistance.repository.CustomerRepository;
 import org.sir.stripeintegration.infrastructure.service.stripe.StripeRootService;
@@ -32,7 +33,8 @@ public class CustomerService implements ICustomerService {
     @Override
     public Mono<CustomerDto> getCustomer(UUID customerId) {
         Mono<CustomerEntity> customers = customerRepository.findById(customerId);
-        return customers.map(customer -> mapper.map(customer, CustomerDto.class));
+        return customers.map(customer -> mapper.map(customer, CustomerDto.class))
+                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())));
     }
 
     @Override
@@ -61,13 +63,15 @@ public class CustomerService implements ICustomerService {
     @Override
     public Mono<CustomerDto> updateCustomer(CustomerUpdateRequestDto requestDto) {
         try {
-            return updateCustomerEntity(requestDto).map(customerEntity -> {
-                requestDto.setCustomerId(customerEntity.getCustomerId());
+            return updateCustomerEntity(requestDto)
+                    .map(customerEntity -> {
+                        requestDto.setCustomerId(customerEntity.getCustomerId());
 
-                CustomerDto customerDto = stripeRootService.updateCustomer(requestDto);
-                customerDto.setId(requestDto.getId());
-                return customerDto;
-            });
+                        CustomerDto customerDto = stripeRootService.updateCustomer(requestDto);
+                        customerDto.setId(requestDto.getId());
+                        return customerDto;
+                    })
+                    .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())));
         }
         catch (CustomException ex){
             logger.error(ex.getMessage());
