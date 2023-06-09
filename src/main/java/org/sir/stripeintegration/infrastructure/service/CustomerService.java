@@ -65,10 +65,10 @@ public class CustomerService implements ICustomerService {
         try {
             return updateCustomerEntity(requestDto)
                     .map(customerEntity -> {
-                        requestDto.setCustomerId(customerEntity.getCustomerId());
+                        requestDto.customerId = (customerEntity.getCustomerId());
 
                         CustomerDto customerDto = stripeRootService.updateCustomer(requestDto);
-                        customerDto.setId(requestDto.getId());
+                        customerDto.setId(requestDto.id);
                         return customerDto;
                     })
                     .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())));

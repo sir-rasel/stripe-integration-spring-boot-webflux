@@ -1,9 +1,9 @@
 package org.sir.stripeintegration.host.controller;
 
 import lombok.AllArgsConstructor;
-import org.sir.stripeintegration.core.application.dtos.customer.request.CustomerCreateRequestDto;
-import org.sir.stripeintegration.core.application.dtos.customer.request.CustomerUpdateRequestDto;
-import org.sir.stripeintegration.core.application.dtos.customer.response.CustomerDto;
+import org.sir.stripeintegration.core.application.dtos.paymentMethod.request.CreatePaymentMethodRequestDto;
+import org.sir.stripeintegration.core.application.dtos.paymentMethod.request.UpdatePaymentMethodRequestDto;
+import org.sir.stripeintegration.core.application.dtos.paymentMethod.response.PaymentMethodDto;
 import org.sir.stripeintegration.core.application.interfaces.service.IPaymentMethodService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -20,35 +20,38 @@ public class PaymentMethodController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<CustomerDto> getPaymentMethod(@PathVariable UUID id) {
-        return customerService.getCustomer(id);
+    public Mono<PaymentMethodDto> getPaymentMethod(@PathVariable UUID id) {
+        return paymentMethodService.getPaymentMethod(id);
     }
 
     @GetMapping("customer/{customerId}/all")
     @ResponseStatus(HttpStatus.OK)
-    public Flux<CustomerDto> getCustomerAllPaymentMethod(
+    public Flux<PaymentMethodDto> getCustomerAllPaymentMethod(
             @PathVariable String customerId,
             @RequestParam(required = false) Integer limit,
             @RequestParam(required = false) String startingAfter,
             @RequestParam(required = false) String endingBefore) {
-        return customerService.getAllCustomer(limit, startingAfter, endingBefore);
+        return paymentMethodService.getCustomerAllPaymentMethod(
+                customerId, limit, startingAfter, endingBefore);
     }
 
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<CustomerDto> addCustomerPaymentMethod(@RequestBody CustomerCreateRequestDto requestDto) {
-        return customerService.addCustomer(requestDto);
+        public Mono<PaymentMethodDto> addCustomerPaymentMethod(
+            @RequestBody CreatePaymentMethodRequestDto requestDto) {
+        return paymentMethodService.addCustomerPaymentMethod(requestDto);
     }
 
     @PutMapping("/update")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<CustomerDto> updateCustomerPaymentMethod(@RequestBody CustomerUpdateRequestDto requestDto) {
-        return customerService.updateCustomer(requestDto);
+    public Mono<PaymentMethodDto> updateCustomerPaymentMethod(
+            @RequestBody UpdatePaymentMethodRequestDto requestDto) {
+        return paymentMethodService.updateCustomerPaymentMethod(requestDto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> deletePaymentMethod(@PathVariable UUID id) {
-        return customerService.deleteCustomer(id);
+        return paymentMethodService.deletePaymentMethod(id);
     }
 }
