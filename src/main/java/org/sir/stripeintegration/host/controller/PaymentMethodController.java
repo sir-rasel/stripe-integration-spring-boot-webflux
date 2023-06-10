@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.UUID;
-
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/payment-method")

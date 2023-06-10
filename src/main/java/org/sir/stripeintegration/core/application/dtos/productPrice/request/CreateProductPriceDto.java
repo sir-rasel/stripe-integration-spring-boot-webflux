@@ -6,4 +6,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateProductPriceDto {
+    public String id;
 }

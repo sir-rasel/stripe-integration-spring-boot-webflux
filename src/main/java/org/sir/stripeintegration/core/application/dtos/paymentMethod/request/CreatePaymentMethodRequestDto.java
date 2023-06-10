@@ -23,8 +23,5 @@ public class CreatePaymentMethodRequestDto {
     @NotNull
     public String cvc;
 
-    @NotNull
-    public Boolean makeAsCustomerDefaultPaymentMethod = true;
-
     public AddressDto address;
 }

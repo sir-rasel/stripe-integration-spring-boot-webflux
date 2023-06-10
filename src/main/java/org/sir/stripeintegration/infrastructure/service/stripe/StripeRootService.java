@@ -115,7 +115,7 @@ public class StripeRootService {
             PaymentMethod paymentMethod = PaymentMethod.create(params);
 
             Map<String, Object> attachParams = new HashMap<>();
-            params.put("customer", customer.id);
+            attachParams.put("customer", customer.id);
             paymentMethod = paymentMethod.attach(attachParams);
 
             return makePaymentMethodResponseDtoFromStripeResponse(paymentMethod);
@@ -137,10 +137,13 @@ public class StripeRootService {
 
     private Map<String, Object> makeAddressRequestParam(AddressDto addressDto) {
         Map<String, Object> address = new HashMap<>();
-        address.put("city", addressDto.city);
-        address.put("country", addressDto.country);
-        address.put("state", addressDto.state);
-        address.put("postal_code", addressDto.postalCode);
+
+        if(addressDto != null) {
+            address.put("city", addressDto.city);
+            address.put("country", addressDto.country);
+            address.put("state", addressDto.state);
+            address.put("postal_code", addressDto.postalCode);
+        }
 
         return address;
     }
@@ -197,7 +200,7 @@ public class StripeRootService {
 
             CustomerListPaymentMethodsParams params = CustomerListPaymentMethodsParams.builder()
                     .setType(CustomerListPaymentMethodsParams.Type.CARD)
-                    .setLimit(limit.longValue())
+                    .setLimit(limit == null ? null : limit.longValue())
                     .setStartingAfter(startingAfter)
                     .setEndingBefore(endingBefore)
                     .build();

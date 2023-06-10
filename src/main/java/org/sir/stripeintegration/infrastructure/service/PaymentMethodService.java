@@ -6,20 +6,18 @@ import org.modelmapper.ModelMapper;
 import org.sir.stripeintegration.core.application.dtos.paymentMethod.request.CreatePaymentMethodRequestDto;
 import org.sir.stripeintegration.core.application.dtos.paymentMethod.request.UpdatePaymentMethodRequestDto;
 import org.sir.stripeintegration.core.application.dtos.paymentMethod.response.PaymentMethodDto;
+import org.sir.stripeintegration.core.application.interfaces.service.IPaymentMethodService;
 import org.sir.stripeintegration.core.domain.PaymentMethodEntity;
 import org.sir.stripeintegration.core.shared.constant.ErrorMessage;
 import org.sir.stripeintegration.core.shared.exceptions.CustomException;
 import org.sir.stripeintegration.infrastructure.persistance.repository.CustomerRepository;
 import org.sir.stripeintegration.infrastructure.persistance.repository.PaymentMethodRepository;
-import org.sir.stripeintegration.core.application.interfaces.service.IPaymentMethodService;
 import org.sir.stripeintegration.infrastructure.service.stripe.StripeRootService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -58,9 +56,10 @@ public class PaymentMethodService implements IPaymentMethodService {
                         PaymentMethodDto paymentMethodDto = stripeRootService.createPaymentMethod(
                                 customerEntity, requestDto);
 
-                        PaymentMethodEntity paymentMethodEntity = savePaymentMethodEntity(paymentMethodDto).block();
+                        savePaymentMethodEntity(paymentMethodDto)
+                                .doOnNext(paymentMethodEntity -> paymentMethodDto.id = paymentMethodEntity.id)
+                                .subscribe();
 
-                        paymentMethodDto.id = paymentMethodEntity.id;
                         return paymentMethodDto;
                     } catch (CustomException ex) {
                         logger.error(ex.getMessage());
@@ -69,7 +68,6 @@ public class PaymentMethodService implements IPaymentMethodService {
                 })
                 .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())));
     }
-
     private Mono<PaymentMethodEntity> savePaymentMethodEntity(PaymentMethodDto paymentMethodDto) {
         PaymentMethodEntity paymentMethodEntity = mapper.map(paymentMethodDto, PaymentMethodEntity.class);
         paymentMethodEntity.setNewEntry(true);
@@ -93,7 +91,6 @@ public class PaymentMethodService implements IPaymentMethodService {
                 })
                 .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.PAYMENT_METHOD_NOT_FOUND.getMessage())));
     }
-
     private Mono<Void> deletePaymentMethodEntity(String id) {
         return paymentMethodRepository.deleteById(id);
     }

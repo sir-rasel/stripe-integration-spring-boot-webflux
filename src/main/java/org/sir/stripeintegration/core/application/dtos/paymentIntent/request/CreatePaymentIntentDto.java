@@ -6,4 +6,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreatePaymentIntentDto {
+    public String id;
 }
