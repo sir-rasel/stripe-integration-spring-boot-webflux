@@ -29,8 +29,7 @@ public class PaymentMethodController {
             @RequestParam(required = false) Integer limit,
             @RequestParam(required = false) String startingAfter,
             @RequestParam(required = false) String endingBefore) {
-        return paymentMethodService.getCustomerAllPaymentMethod(
-                customerId, limit, startingAfter, endingBefore);
+        return paymentMethodService.getCustomerAllPaymentMethod(customerId, limit, startingAfter, endingBefore);
     }
 
     @PostMapping("/add")
@@ -55,7 +54,7 @@ public class PaymentMethodController {
 
     @PatchMapping("/{id}/set-default/customer/{customerId}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<PaymentMethodDto> updateCustomerPaymentMethod(
+    public Mono<PaymentMethodDto> setCustomerDefaultPaymentMethod(
             @PathVariable String id,
             @PathVariable String customerId) {
         return paymentMethodService.setCustomerDefaultPaymentMethod(customerId, id);

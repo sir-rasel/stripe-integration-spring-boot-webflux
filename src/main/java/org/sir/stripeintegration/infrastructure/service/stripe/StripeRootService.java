@@ -169,7 +169,6 @@ public class StripeRootService {
         card.put("exp_year", requestDto.expYear);
 
         Map<String, Object> params = new HashMap<>();
-        params.put("type", "card");
         params.put("card", card);
         params.put("billing_details", billingDetails);
 
@@ -222,8 +221,8 @@ public class StripeRootService {
     public PaymentMethodDto getCustomerPaymentMethodById(String id, String customerId) {
         try {
             PaymentMethod paymentMethod = PaymentMethod.retrieve(id);
-
-            if (paymentMethod.getCustomer().equals(customerId)) {
+            var customerIdFromPaymentMethod = paymentMethod.getCustomer();
+            if (!customerIdFromPaymentMethod.equals(customerId)) {
                 throw new CustomException("This payment methods is not belong to this customer");
             }
 

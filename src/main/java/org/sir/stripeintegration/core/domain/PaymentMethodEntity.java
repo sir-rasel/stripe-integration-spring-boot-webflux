@@ -21,9 +21,6 @@ public class PaymentMethodEntity extends EntityAuditFields implements Persistabl
     @NotNull
     public String customerId;
 
-    @NotNull
-    public String paymentMethodId;
-
     @Transient
     private boolean isNewEntry;
 

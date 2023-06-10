@@ -63,11 +63,13 @@ public class CustomerService implements ICustomerService {
     @Override
     public Mono<CustomerDto> updateCustomer(CustomerUpdateRequestDto requestDto) {
         try {
-            return updateCustomerEntity(requestDto).map(customerEntity -> {
-                CustomerDto customerDto = stripeRootService.updateCustomer(requestDto);
-                customerDto.setId(requestDto.id);
-                return customerDto;
-            }).switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())));
+            return updateCustomerEntity(requestDto)
+                    .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())))
+                    .map(customerEntity -> {
+                        CustomerDto customerDto = stripeRootService.updateCustomer(requestDto);
+                        customerDto.setId(requestDto.id);
+                        return customerDto;
+                    });
         } catch (CustomException ex) {
             logger.error(ex.getMessage());
             throw new CustomException("Error occurred on customer update");

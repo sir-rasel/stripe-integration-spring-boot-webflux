@@ -33,41 +33,40 @@ public class PaymentMethodService implements IPaymentMethodService {
     @Override
     public Mono<PaymentMethodDto> getPaymentMethod(String id) {
         return paymentMethodRepository.findById(id)
+                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.PAYMENT_METHOD_NOT_FOUND.getMessage())))
                 .map(paymentMethodEntity -> stripeRootService.getCustomerPaymentMethodById(
-                        id, paymentMethodEntity.customerId))
-                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.PAYMENT_METHOD_NOT_FOUND.getMessage())));
+                        id, paymentMethodEntity.customerId));
     }
 
     @Override
     public Flux<PaymentMethodDto> getCustomerAllPaymentMethod(
             String customerId, Integer limit, String startingAfter, String endingBefore) {
         return customerRepository.findById(customerId)
+                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())))
                 .map(customerEntity -> stripeRootService.getCustomerAllPaymentMethods(
                         customerId, limit, startingAfter, endingBefore))
-                .flatMapIterable(list -> list)
-                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())));
+                .flatMapIterable(list -> list);
     }
 
     @Override
     public Mono<PaymentMethodDto> addCustomerPaymentMethod(CreatePaymentMethodRequestDto requestDto) {
         return customerRepository.findById(requestDto.customerId)
-                .map(customerEntity -> {
+                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())))
+                .flatMap(customerEntity -> {
                     try {
                         PaymentMethodDto paymentMethodDto = stripeRootService.createPaymentMethod(
                                 customerEntity, requestDto);
 
-                        savePaymentMethodEntity(paymentMethodDto)
+                        return savePaymentMethodEntity(paymentMethodDto)
                                 .doOnNext(paymentMethodEntity -> paymentMethodDto.id = paymentMethodEntity.id)
-                                .subscribe();
-
-                        return paymentMethodDto;
+                                .map(paymentMethodEntity -> paymentMethodDto);
                     } catch (CustomException ex) {
                         logger.error(ex.getMessage());
                         throw new CustomException("Error on customer payment method crete");
                     }
-                })
-                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())));
+                });
     }
+
     private Mono<PaymentMethodEntity> savePaymentMethodEntity(PaymentMethodDto paymentMethodDto) {
         PaymentMethodEntity paymentMethodEntity = mapper.map(paymentMethodDto, PaymentMethodEntity.class);
         paymentMethodEntity.setNewEntry(true);
@@ -78,19 +77,20 @@ public class PaymentMethodService implements IPaymentMethodService {
     @Override
     public Mono<PaymentMethodDto> updateCustomerPaymentMethod(UpdatePaymentMethodRequestDto requestDto) {
         return paymentMethodRepository.findById(requestDto.id)
-                .map(paymentMethodEntity -> stripeRootService.updatePaymentMethod(requestDto))
-                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.PAYMENT_METHOD_NOT_FOUND.getMessage())));
+                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.PAYMENT_METHOD_NOT_FOUND.getMessage())))
+                .map(paymentMethodEntity -> stripeRootService.updatePaymentMethod(requestDto));
     }
 
     @Override
     public Mono<Void> deletePaymentMethod(String id) {
         return paymentMethodRepository.findById(id)
+                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.PAYMENT_METHOD_NOT_FOUND.getMessage())))
                 .flatMap(paymentMethodEntity -> {
                     stripeRootService.deletePaymentMethod(id);
                     return deletePaymentMethodEntity(id);
-                })
-                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.PAYMENT_METHOD_NOT_FOUND.getMessage())));
+                });
     }
+
     private Mono<Void> deletePaymentMethodEntity(String id) {
         return paymentMethodRepository.deleteById(id);
     }
@@ -98,7 +98,7 @@ public class PaymentMethodService implements IPaymentMethodService {
     @Override
     public Mono<PaymentMethodDto> setCustomerDefaultPaymentMethod(String customerId, String paymentMethodId) {
         return customerRepository.findById(customerId)
-                .map(customer -> stripeRootService.setCustomerDefaultPaymentMethod(customerId, paymentMethodId))
-                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())));
+                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())))
+                .map(customer -> stripeRootService.setCustomerDefaultPaymentMethod(customerId, paymentMethodId));
     }
 }
