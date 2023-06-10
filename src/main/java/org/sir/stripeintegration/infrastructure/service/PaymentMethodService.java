@@ -44,7 +44,7 @@ public class PaymentMethodService implements IPaymentMethodService {
 
     @Override
     public Mono<PaymentMethodDto> addCustomerPaymentMethod(CreatePaymentMethodRequestDto requestDto) {
-        return customerRepository.findByCustomerId(requestDto.customerId)
+        return customerRepository.findById(requestDto.customerId)
                 .map(customerEntity -> {
                     try {
                         PaymentMethodDto paymentMethodDto =

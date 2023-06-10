@@ -31,7 +31,7 @@ public class CustomerService implements ICustomerService {
     private final ModelMapper mapper = new ModelMapper();
 
     @Override
-    public Mono<CustomerDto> getCustomer(UUID customerId) {
+    public Mono<CustomerDto> getCustomer(String customerId) {
         Mono<CustomerEntity> customers = customerRepository.findById(customerId);
         return customers.map(customer -> mapper.map(customer, CustomerDto.class))
                 .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())));
@@ -57,6 +57,8 @@ public class CustomerService implements ICustomerService {
     }
     private Mono<CustomerEntity> saveCustomerEntity(CustomerDto customerDto) {
         CustomerEntity customer = mapper.map(customerDto, CustomerEntity.class);
+        customer.setNewEntry(true);
+
         return customerRepository.save(customer);
     }
 
@@ -65,8 +67,6 @@ public class CustomerService implements ICustomerService {
         try {
             return updateCustomerEntity(requestDto)
                     .map(customerEntity -> {
-                        requestDto.customerId = (customerEntity.getCustomerId());
-
                         CustomerDto customerDto = stripeRootService.updateCustomer(requestDto);
                         customerDto.setId(requestDto.id);
                         return customerDto;
@@ -84,16 +84,17 @@ public class CustomerService implements ICustomerService {
             customerEntity.setEmail(requestDto.email);
             customerEntity.setName(requestDto.name);
             customerEntity.setPhone(requestDto.phone);
+            customerEntity.setNewEntry(false);
 
             return customerRepository.save(customerEntity);
         });
     }
 
     @Override
-    public Mono<Void> deleteCustomer(UUID id) {
+    public Mono<Void> deleteCustomer(String id) {
         try {
             return getCustomer(id).flatMap(customerDto -> {
-                CustomerDto deletedCustomer = stripeRootService.deleteCustomer(customerDto.customerId);
+                CustomerDto deletedCustomer = stripeRootService.deleteCustomer(customerDto.id);
                 return deleteCustomerEntity(id);
             });
         }
@@ -102,7 +103,7 @@ public class CustomerService implements ICustomerService {
             throw new CustomException("Error occurred on customer delete");
         }
     }
-    private Mono<Void> deleteCustomerEntity(UUID id){
+    private Mono<Void> deleteCustomerEntity(String id){
         return customerRepository.deleteById(id);
     }
 }

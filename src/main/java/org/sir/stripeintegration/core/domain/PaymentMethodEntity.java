@@ -6,19 +6,29 @@ import lombok.EqualsAndHashCode;
 import org.sir.stripeintegration.core.shared.EntityAuditFields;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @EntityScan
-public class PaymentMethodEntity extends EntityAuditFields {
+public class PaymentMethodEntity extends EntityAuditFields implements Persistable<String> {
     @Id
-    public UUID id;
+    public String id;
 
     @NotNull
     public String customerId;
 
     @NotNull
     public String paymentMethodId;
+
+    @Transient
+    private boolean isNewEntry;
+
+    @Override
+    public boolean isNew() {
+        return isNewEntry;
+    }
 }

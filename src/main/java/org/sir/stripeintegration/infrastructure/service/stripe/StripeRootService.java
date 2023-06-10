@@ -41,7 +41,8 @@ public class StripeRootService {
 
     @PostConstruct
     public void init() {
-        Stripe.apiKey = "sk_test_51NCRSGD1Nw0D8DcC8vLiSufo7XBq69Tl1OZcMpMe2MSjyeXchjCW6ZisgKBN0sGbRAD3vOPsYv4SgsT4TBeunfo300hToIi5ZE";
+        Stripe.apiKey = "sk_test_51NCRSGD1Nw0D8DcC8vLiSufo7XBq69Tl1OZcMpMe2MSjyeXchjCW6ZisgKBN0sGbRAD3vOPsYv4SgsT4TB" +
+                "eunfo300hToIi5ZE";
     }
 
     //region Customer
@@ -67,7 +68,7 @@ public class StripeRootService {
         params.put("phone", requestDto.phone);
 
         try {
-            Customer customer = Customer.retrieve(requestDto.customerId);
+            Customer customer = Customer.retrieve(requestDto.id);
             Customer updatedCustomer = customer.update(params);
 
             return new CustomerDto(updatedCustomer.getId(), updatedCustomer.getEmail(),
@@ -115,7 +116,7 @@ public class StripeRootService {
             PaymentMethod paymentMethod = PaymentMethod.create(params);
 
             Map<String, Object> attachParams = new HashMap<>();
-            params.put("customer", customer.customerId);
+            params.put("customer", customer.id);
             paymentMethod = paymentMethod.attach(attachParams);
 
             return makePaymentMethodResponseDtoFromStripeResponse(paymentMethod);

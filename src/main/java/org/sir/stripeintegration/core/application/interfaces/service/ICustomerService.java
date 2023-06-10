@@ -9,9 +9,9 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 public interface ICustomerService {
-    Mono<CustomerDto> getCustomer(UUID id);
+    Mono<CustomerDto> getCustomer(String id);
     Flux<CustomerDto> getAllCustomer(Integer limit, String startingAfter, String endingBefore);
     Mono<CustomerDto> addCustomer(CustomerCreateRequestDto requestDto);
     Mono<CustomerDto> updateCustomer(CustomerUpdateRequestDto requestDto);
-    Mono<Void> deleteCustomer(UUID id);
+    Mono<Void> deleteCustomer(String id);
 }

@@ -20,7 +20,7 @@ public class CustomerController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<CustomerDto> getCustomer(@PathVariable UUID id) {
+    public Mono<CustomerDto> getCustomer(@PathVariable String id) {
         return customerService.getCustomer(id);
     }
 
@@ -47,7 +47,7 @@ public class CustomerController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<Void> deleteCustomer(@PathVariable UUID id) {
+    public Mono<Void> deleteCustomer(@PathVariable String id) {
         return customerService.deleteCustomer(id);
     }
 }

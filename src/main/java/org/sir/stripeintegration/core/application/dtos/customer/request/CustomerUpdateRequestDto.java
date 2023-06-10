@@ -16,9 +16,7 @@ public class CustomerUpdateRequestDto {
     @NotNull
     @NotEmpty
     @NotBlank
-    public UUID id;
-
-    public String customerId;
+    public String id;
 
     @Email
     @NotNull

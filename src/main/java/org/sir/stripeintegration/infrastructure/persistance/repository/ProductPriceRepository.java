@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface ProductPriceRepository extends R2dbcRepository<ProductPriceEntity, UUID> {
+public interface ProductPriceRepository extends R2dbcRepository<ProductPriceEntity, String> {
 }

@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface PaymentIntentRepository extends R2dbcRepository<PaymentIntentEntity, UUID> {
+public interface PaymentIntentRepository extends R2dbcRepository<PaymentIntentEntity, String> {
 }
