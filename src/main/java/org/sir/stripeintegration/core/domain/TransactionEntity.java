@@ -11,7 +11,7 @@ import org.springframework.data.domain.Persistable;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @EntityScan
-public class TransactionEntity  extends EntityAuditFields implements Persistable<String> {
+public class TransactionEntity extends EntityAuditFields implements Persistable<String> {
     @Id
     public String id;
 

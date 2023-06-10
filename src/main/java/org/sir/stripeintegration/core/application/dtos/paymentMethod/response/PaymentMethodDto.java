@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 import org.sir.stripeintegration.core.shared.dtoModels.BillingDetailsDto;
 import org.sir.stripeintegration.core.shared.dtoModels.CardDto;
 
-import java.util.UUID;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -4,6 +4,8 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.PaymentMethod;
+import com.stripe.model.PaymentMethodCollection;
+import com.stripe.param.CustomerListPaymentMethodsParams;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -11,6 +13,7 @@ import org.sir.stripeintegration.core.application.dtos.customer.request.Customer
 import org.sir.stripeintegration.core.application.dtos.customer.request.CustomerUpdateRequestDto;
 import org.sir.stripeintegration.core.application.dtos.customer.response.CustomerDto;
 import org.sir.stripeintegration.core.application.dtos.paymentMethod.request.CreatePaymentMethodRequestDto;
+import org.sir.stripeintegration.core.application.dtos.paymentMethod.request.UpdatePaymentMethodRequestDto;
 import org.sir.stripeintegration.core.application.dtos.paymentMethod.response.PaymentMethodDto;
 import org.sir.stripeintegration.core.domain.CustomerEntity;
 import org.sir.stripeintegration.core.shared.dtoModels.AddressDto;
@@ -79,12 +82,10 @@ public class StripeRootService {
         }
     }
 
-    public CustomerDto deleteCustomer(String customerId) {
+    public void deleteCustomer(String customerId) {
         try {
             Customer customer = Customer.retrieve(customerId);
-            Customer deletedCustomer = customer.delete();
-            return new CustomerDto(deletedCustomer.getId(), deletedCustomer.getEmail(),
-                    deletedCustomer.getName(), deletedCustomer.getPhone());
+            customer.delete();
         } catch (StripeException e) {
             logger.error(e.getMessage());
             throw new CustomException("Error when customer try to delete from stripe");
@@ -96,16 +97,14 @@ public class StripeRootService {
     //endregion
 
     //region PaymentMethod
-    public PaymentMethodDto createPaymentMethod(
-            CustomerEntity customer, CreatePaymentMethodRequestDto requestDto) {
+    public PaymentMethodDto createPaymentMethod(CustomerEntity customer, CreatePaymentMethodRequestDto requestDto) {
         Map<String, Object> card = new HashMap<>();
         card.put("number", requestDto.cardNumber);
         card.put("exp_month", requestDto.expMonth);
         card.put("exp_year", requestDto.expYear);
         card.put("cvc", requestDto.cvc);
 
-        Map<String, Object> billingDetails = makeBillingAddressRequestParam(
-                customer, requestDto.address);
+        Map<String, Object> billingDetails = makeBillingAddressRequestParam(customer, requestDto.address);
 
         Map<String, Object> params = new HashMap<>();
         params.put("type", "card");
@@ -122,12 +121,11 @@ public class StripeRootService {
             return makePaymentMethodResponseDtoFromStripeResponse(paymentMethod);
         } catch (StripeException e) {
             logger.error(e.getMessage());
-            throw new CustomException("Error when try to create customer payment method from stripe");
+            throw new CustomException("Error when try to create customer payment method on stripe");
         }
     }
 
-    private Map<String, Object> makeBillingAddressRequestParam(
-            CustomerEntity customer, AddressDto addressDto) {
+    private Map<String, Object> makeBillingAddressRequestParam(CustomerEntity customer, AddressDto addressDto) {
         Map<String, Object> billingDetails = new HashMap<>();
         billingDetails.put("address", makeAddressRequestParam(addressDto));
         billingDetails.put("email", customer.email);
@@ -147,35 +145,110 @@ public class StripeRootService {
         return address;
     }
 
-    private PaymentMethodDto makePaymentMethodResponseDtoFromStripeResponse(
-            PaymentMethod paymentMethod){
+    private PaymentMethodDto makePaymentMethodResponseDtoFromStripeResponse(PaymentMethod paymentMethod) {
         PaymentMethodDto paymentMethodDto = new PaymentMethodDto();
-        paymentMethodDto.paymentMethodId = paymentMethod.getId();
+        paymentMethodDto.id = paymentMethod.getId();
         paymentMethodDto.customerId = paymentMethod.getCustomer();
         paymentMethodDto.type = paymentMethod.getType();
-        paymentMethodDto.billingDetails = mapper.map(
-                paymentMethod.getBillingDetails(), BillingDetailsDto.class);
+        paymentMethodDto.billingDetails = mapper.map(paymentMethod.getBillingDetails(), BillingDetailsDto.class);
         paymentMethodDto.card = mapper.map(paymentMethod.getCard(), CardDto.class);
 
         return paymentMethodDto;
     }
 
-    public PaymentMethodDto updatePaymentMethod() {
-        return new PaymentMethodDto();
+    public PaymentMethodDto updatePaymentMethod(UpdatePaymentMethodRequestDto requestDto) {
+        Map<String, Object> address = makeAddressRequestParam(requestDto.address);
+        Map<String, Object> billingDetails = new HashMap<>();
+        billingDetails.put("address", address);
+
+        Map<String, Object> card = new HashMap<>();
+        card.put("exp_month", requestDto.expMonth);
+        card.put("exp_year", requestDto.expYear);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("type", "card");
+        params.put("card", card);
+        params.put("billing_details", billingDetails);
+
+        try {
+            PaymentMethod paymentMethod = PaymentMethod.retrieve(requestDto.id);
+            paymentMethod = paymentMethod.update(params);
+            return makePaymentMethodResponseDtoFromStripeResponse(paymentMethod);
+        } catch (StripeException e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to update customer payment method on stripe");
+        }
     }
 
-    public PaymentMethodDto deletePaymentMethod() {
-        return new PaymentMethodDto();
+    public void deletePaymentMethod(String id) {
+        try {
+            PaymentMethod paymentMethod = PaymentMethod.retrieve(id);
+            paymentMethod.detach();
+        } catch (StripeException e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to detach customer payment method on stripe");
+        }
     }
 
     public List<PaymentMethodDto> getCustomerAllPaymentMethods(
-            Integer limit, String startingAfter, String endingBefore
-    ) {
-        return new ArrayList<>();
+            String customerId, Integer limit, String startingAfter, String endingBefore) {
+        try {
+            Customer customer = Customer.retrieve(customerId);
+
+            CustomerListPaymentMethodsParams params = CustomerListPaymentMethodsParams.builder()
+                    .setType(CustomerListPaymentMethodsParams.Type.CARD)
+                    .setLimit(limit.longValue())
+                    .setStartingAfter(startingAfter)
+                    .setEndingBefore(endingBefore)
+                    .build();
+
+            PaymentMethodCollection paymentMethods =
+                    customer.listPaymentMethods(params);
+
+            List<PaymentMethodDto> paymentMethodDtos = new ArrayList<>();
+            paymentMethods.getData().forEach(paymentMethod ->
+                    paymentMethodDtos.add(makePaymentMethodResponseDtoFromStripeResponse(paymentMethod)));
+
+            return paymentMethodDtos;
+        } catch (StripeException e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to retrieve customer payment methods on stripe");
+        }
     }
 
-    public PaymentMethodDto getCustomerPaymentMethodById() {
-        return new PaymentMethodDto();
+    public PaymentMethodDto getCustomerPaymentMethodById(String id, String customerId) {
+        try {
+            PaymentMethod paymentMethod = PaymentMethod.retrieve(id);
+
+            if (paymentMethod.getCustomer().equals(customerId)) {
+                throw new CustomException("This payment methods is not belong to this customer");
+            }
+
+            return makePaymentMethodResponseDtoFromStripeResponse(paymentMethod);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to retrieve customer payment method on stripe");
+        }
+    }
+
+    public PaymentMethodDto setCustomerDefaultPaymentMethod(String customerId, String paymentMethodId) {
+        Map<String, Object> invoiceSettings = new HashMap<>();
+        invoiceSettings.put("default_payment_method", paymentMethodId);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("invoice_settings", invoiceSettings);
+
+        try {
+            PaymentMethodDto paymentMethodDto = getCustomerPaymentMethodById(paymentMethodId, customerId);
+
+            Customer customer = Customer.retrieve(customerId);
+            customer.update(params);
+
+            return paymentMethodDto;
+        } catch (StripeException e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to update customer default payment method on stripe");
+        }
     }
     //endregion
 

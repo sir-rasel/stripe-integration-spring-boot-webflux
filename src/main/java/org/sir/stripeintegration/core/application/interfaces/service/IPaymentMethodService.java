@@ -6,13 +6,17 @@ import org.sir.stripeintegration.core.application.dtos.paymentMethod.response.Pa
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.UUID;
-
 public interface IPaymentMethodService {
-    Mono<PaymentMethodDto> getPaymentMethod(UUID id);
+    Mono<PaymentMethodDto> getPaymentMethod(String id);
+
     Flux<PaymentMethodDto> getCustomerAllPaymentMethod(
-            String customerId,Integer limit, String startingAfter, String endingBefore);
+            String customerId, Integer limit, String startingAfter, String endingBefore);
+
     Mono<PaymentMethodDto> addCustomerPaymentMethod(CreatePaymentMethodRequestDto requestDto);
+
     Mono<PaymentMethodDto> updateCustomerPaymentMethod(UpdatePaymentMethodRequestDto requestDto);
-    Mono<Void> deletePaymentMethod(UUID id);
+
+    Mono<Void> deletePaymentMethod(String id);
+
+    Mono<PaymentMethodDto> setCustomerDefaultPaymentMethod(String customerId, String paymentMethodId);
 }

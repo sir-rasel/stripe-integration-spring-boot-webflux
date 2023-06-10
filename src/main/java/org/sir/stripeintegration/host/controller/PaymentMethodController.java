@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -20,11 +21,11 @@ public class PaymentMethodController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<PaymentMethodDto> getPaymentMethod(@PathVariable UUID id) {
+    public Mono<PaymentMethodDto> getPaymentMethod(@PathVariable String id) {
         return paymentMethodService.getPaymentMethod(id);
     }
 
-    @GetMapping("customer/{customerId}/all")
+    @GetMapping("/all/customer/{customerId}")
     @ResponseStatus(HttpStatus.OK)
     public Flux<PaymentMethodDto> getCustomerAllPaymentMethod(
             @PathVariable String customerId,
@@ -37,7 +38,7 @@ public class PaymentMethodController {
 
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
-        public Mono<PaymentMethodDto> addCustomerPaymentMethod(
+    public Mono<PaymentMethodDto> addCustomerPaymentMethod(
             @RequestBody CreatePaymentMethodRequestDto requestDto) {
         return paymentMethodService.addCustomerPaymentMethod(requestDto);
     }
@@ -51,7 +52,15 @@ public class PaymentMethodController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<Void> deletePaymentMethod(@PathVariable UUID id) {
+    public Mono<Void> deletePaymentMethod(@PathVariable String id) {
         return paymentMethodService.deletePaymentMethod(id);
+    }
+
+    @PatchMapping("/{id}/set-default/customer/{customerId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<PaymentMethodDto> updateCustomerPaymentMethod(
+            @PathVariable String id,
+            @PathVariable String customerId) {
+        return paymentMethodService.setCustomerDefaultPaymentMethod(customerId, id);
     }
 }

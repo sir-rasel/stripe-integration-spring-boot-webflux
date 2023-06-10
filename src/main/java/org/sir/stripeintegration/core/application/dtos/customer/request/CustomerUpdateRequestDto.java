@@ -8,8 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @AllArgsConstructor
 @NoArgsConstructor
 public class CustomerUpdateRequestDto {

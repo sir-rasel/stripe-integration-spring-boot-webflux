@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.sir.stripeintegration.core.shared.dtoModels.AddressDto;
 
-import java.util.UUID;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -19,7 +17,7 @@ public class UpdatePaymentMethodRequestDto {
     @NotNull
     @NotEmpty
     @NotBlank
-    public UUID id;
+    public String id;
 
     @NotNull
     public String expMonth;

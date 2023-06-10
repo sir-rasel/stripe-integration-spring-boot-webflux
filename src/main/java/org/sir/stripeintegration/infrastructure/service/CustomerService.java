@@ -18,8 +18,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.UUID;
-
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -49,12 +47,12 @@ public class CustomerService implements ICustomerService {
             CustomerDto customerDto = stripeRootService.createCustomer(requestDto);
             Mono<CustomerEntity> customer = saveCustomerEntity(customerDto);
             return customer.map(customerEntity -> mapper.map(customerEntity, CustomerDto.class));
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
             throw new CustomException("Error occurred on customer create");
         }
     }
+
     private Mono<CustomerEntity> saveCustomerEntity(CustomerDto customerDto) {
         CustomerEntity customer = mapper.map(customerDto, CustomerEntity.class);
         customer.setNewEntry(true);
@@ -65,22 +63,20 @@ public class CustomerService implements ICustomerService {
     @Override
     public Mono<CustomerDto> updateCustomer(CustomerUpdateRequestDto requestDto) {
         try {
-            return updateCustomerEntity(requestDto)
-                    .map(customerEntity -> {
-                        CustomerDto customerDto = stripeRootService.updateCustomer(requestDto);
-                        customerDto.setId(requestDto.id);
-                        return customerDto;
-                    })
-                    .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())));
-        }
-        catch (CustomException ex){
+            return updateCustomerEntity(requestDto).map(customerEntity -> {
+                CustomerDto customerDto = stripeRootService.updateCustomer(requestDto);
+                customerDto.setId(requestDto.id);
+                return customerDto;
+            }).switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())));
+        } catch (CustomException ex) {
             logger.error(ex.getMessage());
             throw new CustomException("Error occurred on customer update");
         }
     }
-    private Mono<CustomerEntity> updateCustomerEntity(CustomerUpdateRequestDto requestDto){
+
+    private Mono<CustomerEntity> updateCustomerEntity(CustomerUpdateRequestDto requestDto) {
         Mono<CustomerEntity> customer = customerRepository.findById(requestDto.id);
-       return customer.flatMap(customerEntity -> {
+        return customer.flatMap(customerEntity -> {
             customerEntity.setEmail(requestDto.email);
             customerEntity.setName(requestDto.name);
             customerEntity.setPhone(requestDto.phone);
@@ -94,16 +90,16 @@ public class CustomerService implements ICustomerService {
     public Mono<Void> deleteCustomer(String id) {
         try {
             return getCustomer(id).flatMap(customerDto -> {
-                CustomerDto deletedCustomer = stripeRootService.deleteCustomer(customerDto.id);
+                stripeRootService.deleteCustomer(customerDto.id);
                 return deleteCustomerEntity(id);
             });
-        }
-        catch (CustomException ex){
+        } catch (CustomException ex) {
             logger.error(ex.getMessage());
             throw new CustomException("Error occurred on customer delete");
         }
     }
-    private Mono<Void> deleteCustomerEntity(String id){
+
+    private Mono<Void> deleteCustomerEntity(String id) {
         return customerRepository.deleteById(id);
     }
 }

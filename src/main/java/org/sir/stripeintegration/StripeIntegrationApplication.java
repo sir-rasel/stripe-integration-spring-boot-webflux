@@ -15,19 +15,19 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 @SpringBootApplication
 public class StripeIntegrationApplication {
 
-	@Bean
-	ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
+    @Bean
+    ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
 
-		ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
-		initializer.setConnectionFactory(connectionFactory);
-		initializer.setDatabasePopulator(new ResourceDatabasePopulator(new ClassPathResource("schema.sql")));
+        ConnectionFactoryInitializer initializer = new ConnectionFactoryInitializer();
+        initializer.setConnectionFactory(connectionFactory);
+        initializer.setDatabasePopulator(new ResourceDatabasePopulator(new ClassPathResource("schema.sql")));
 
-		System.out.println("Execute schema.sql");
-		return initializer;
-	}
+        System.out.println("Execute schema.sql");
+        return initializer;
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(StripeIntegrationApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(StripeIntegrationApplication.class, args);
+    }
 
 }
