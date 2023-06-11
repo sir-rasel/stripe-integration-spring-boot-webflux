@@ -13,7 +13,7 @@ public class PaymentIntentDto {
     public String id;
     public int amount;
     public String status;
-    public String paymentMethod;
+    public String paymentMethodId;
     public String currency;
-    public String customer;
+    public String customerId;
 }

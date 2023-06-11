@@ -2,10 +2,7 @@ package org.sir.stripeintegration.infrastructure.service.stripe;
 
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Customer;
-import com.stripe.model.PaymentIntent;
-import com.stripe.model.PaymentMethod;
-import com.stripe.model.PaymentMethodCollection;
+import com.stripe.model.*;
 import com.stripe.param.CustomerListPaymentMethodsParams;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -60,16 +57,20 @@ public class StripeRootService {
 
         try {
             Customer customer = Customer.create(params);
-            return CustomerDto.builder()
-                    .id(customer.getId())
-                    .email(customer.getEmail())
-                    .name(customer.getName())
-                    .phone(customer.getPhone())
-                    .build();
+            return getCustomerDtoFromCustomerObject(customer);
         } catch (StripeException e) {
             logger.error(e.getMessage());
             throw new CustomException("Error when try to crete customer on stripe");
         }
+    }
+
+    private CustomerDto getCustomerDtoFromCustomerObject(Customer customer){
+        return CustomerDto.builder()
+                .id(customer.getId())
+                .email(customer.getEmail())
+                .name(customer.getName())
+                .phone(customer.getPhone())
+                .build();
     }
 
     public CustomerDto updateCustomer(CustomerUpdateRequestDto requestDto) {
@@ -82,12 +83,7 @@ public class StripeRootService {
             Customer customer = Customer.retrieve(requestDto.id);
             customer = customer.update(params);
 
-            return CustomerDto.builder()
-                    .id(customer.getId())
-                    .email(customer.getEmail())
-                    .name(customer.getName())
-                    .phone(customer.getPhone())
-                    .build();
+            return getCustomerDtoFromCustomerObject(customer);
         } catch (StripeException e) {
             logger.error(e.getMessage());
             throw new CustomException("Error when try to update customer on stripe");
@@ -106,18 +102,76 @@ public class StripeRootService {
     //endregion
 
     //region PaymentIntent
-    public PaymentIntentDto createCustomerPaymentIntent(CreatePaymentIntentRequestDto requestDto) {
+    public PaymentIntentDto createPaymentIntent(CreatePaymentIntentRequestDto requestDto) {
         Map<String, Object> params = new HashMap<>();
-        params.put("amount", 2000);
-        params.put("currency", "usd");
+        params.put("amount", requestDto.amount);
+        params.put("currency", requestDto.currency);
         params.put("confirm", true);
+        params.put("customer", requestDto.customerId);
 
         try {
+            Customer customer = Customer.retrieve(requestDto.customerId);
+
+            if (customer.getInvoiceSettings().getDefaultPaymentMethod() == null) {
+                throw new CustomException("Customer default payment method not set yet");
+            }
+
+            params.put("payment_method", customer.getInvoiceSettings().getDefaultPaymentMethod());
             PaymentIntent paymentIntent = PaymentIntent.create(params);
-        } catch (StripeException e) {
-            throw new RuntimeException(e);
+
+            return getPaymentIntentDtoFromPaymentIntentObject(paymentIntent);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to crete payment intent on stripe");
         }
-        return null;
+    }
+
+    private PaymentIntentDto getPaymentIntentDtoFromPaymentIntentObject(PaymentIntent paymentIntent){
+        return PaymentIntentDto.builder()
+                .id(paymentIntent.getId())
+                .amount(paymentIntent.getAmount().intValue())
+                .status(paymentIntent.getStatus())
+                .currency(paymentIntent.getCurrency())
+                .customerId(paymentIntent.getCustomer())
+                .paymentMethodId(paymentIntent.getPaymentMethod())
+                .build();
+    }
+
+    public PaymentIntentDto getCustomerPaymentIntentById(String id, String customerId) {
+        try {
+            PaymentIntent paymentIntent = PaymentIntent.retrieve(id);
+
+            if(!paymentIntent.getCustomer().equals(customerId)){
+                throw new CustomException("This payment intent is not belongs to this customer");
+            }
+
+            return getPaymentIntentDtoFromPaymentIntentObject(paymentIntent);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to retrieve customer payment method on stripe");
+        }
+    }
+
+    public List<PaymentIntentDto> getCustomerAllPaymentIntent(
+            String customerId, Integer limit, String startingAfter, String endingBefore) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("customer", customerId);
+        params.put("limit", limit);
+        params.put("starting_after", startingAfter);
+        params.put("ending_before", endingBefore);
+
+        try {
+            PaymentIntentCollection paymentIntents = PaymentIntent.list(params);
+
+            List<PaymentIntentDto> paymentIntentDtos = new ArrayList<>();
+            paymentIntents.getData().forEach(paymentIntent ->
+                    paymentIntentDtos.add(getPaymentIntentDtoFromPaymentIntentObject(paymentIntent)));
+
+            return paymentIntentDtos;
+        } catch (StripeException e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to retrieve customer payment intents on stripe");
+        }
     }
     //endregion
 
@@ -228,8 +282,7 @@ public class StripeRootService {
                     .setEndingBefore(endingBefore)
                     .build();
 
-            PaymentMethodCollection paymentMethods =
-                    customer.listPaymentMethods(params);
+            PaymentMethodCollection paymentMethods = customer.listPaymentMethods(params);
 
             List<PaymentMethodDto> paymentMethodDtos = new ArrayList<>();
             paymentMethods.getData().forEach(paymentMethod ->
@@ -245,9 +298,9 @@ public class StripeRootService {
     public PaymentMethodDto getCustomerPaymentMethodById(String id, String customerId) {
         try {
             PaymentMethod paymentMethod = PaymentMethod.retrieve(id);
-            var customerIdFromPaymentMethod = paymentMethod.getCustomer();
-            if (!customerIdFromPaymentMethod.equals(customerId)) {
-                throw new CustomException("This payment methods is not belong to this customer");
+
+            if (!paymentMethod.getCustomer().equals(customerId)) {
+                throw new CustomException("This payment method is not belongs to this customer");
             }
 
             return makePaymentMethodResponseDtoFromStripeResponse(paymentMethod);
