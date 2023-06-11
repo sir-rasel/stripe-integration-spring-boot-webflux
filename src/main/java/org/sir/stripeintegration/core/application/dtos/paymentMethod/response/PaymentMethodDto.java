@@ -1,6 +1,7 @@
 package org.sir.stripeintegration.core.application.dtos.paymentMethod.response;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sir.stripeintegration.core.shared.dtoModels.BillingDetailsDto;
@@ -9,6 +10,7 @@ import org.sir.stripeintegration.core.shared.dtoModels.CardDto;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class PaymentMethodDto {
     public String id;
     public String customerId;

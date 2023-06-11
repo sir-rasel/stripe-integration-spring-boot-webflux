@@ -3,6 +3,7 @@ package org.sir.stripeintegration.infrastructure.service.stripe;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
+import com.stripe.model.PaymentIntent;
 import com.stripe.model.PaymentMethod;
 import com.stripe.model.PaymentMethodCollection;
 import com.stripe.param.CustomerListPaymentMethodsParams;
@@ -12,6 +13,8 @@ import org.modelmapper.ModelMapper;
 import org.sir.stripeintegration.core.application.dtos.customer.request.CustomerCreateRequestDto;
 import org.sir.stripeintegration.core.application.dtos.customer.request.CustomerUpdateRequestDto;
 import org.sir.stripeintegration.core.application.dtos.customer.response.CustomerDto;
+import org.sir.stripeintegration.core.application.dtos.paymentIntent.request.CreatePaymentIntentRequestDto;
+import org.sir.stripeintegration.core.application.dtos.paymentIntent.response.PaymentIntentDto;
 import org.sir.stripeintegration.core.application.dtos.paymentMethod.request.CreatePaymentMethodRequestDto;
 import org.sir.stripeintegration.core.application.dtos.paymentMethod.request.UpdatePaymentMethodRequestDto;
 import org.sir.stripeintegration.core.application.dtos.paymentMethod.response.PaymentMethodDto;
@@ -57,7 +60,12 @@ public class StripeRootService {
 
         try {
             Customer customer = Customer.create(params);
-            return new CustomerDto(customer.getId(), customer.getEmail(), customer.getName(), customer.getPhone());
+            return CustomerDto.builder()
+                    .id(customer.getId())
+                    .email(customer.getEmail())
+                    .name(customer.getName())
+                    .phone(customer.getPhone())
+                    .build();
         } catch (StripeException e) {
             logger.error(e.getMessage());
             throw new CustomException("Error when try to crete customer on stripe");
@@ -72,10 +80,14 @@ public class StripeRootService {
 
         try {
             Customer customer = Customer.retrieve(requestDto.id);
-            Customer updatedCustomer = customer.update(params);
+            customer = customer.update(params);
 
-            return new CustomerDto(updatedCustomer.getId(), updatedCustomer.getEmail(),
-                    updatedCustomer.getName(), updatedCustomer.getPhone());
+            return CustomerDto.builder()
+                    .id(customer.getId())
+                    .email(customer.getEmail())
+                    .name(customer.getName())
+                    .phone(customer.getPhone())
+                    .build();
         } catch (StripeException e) {
             logger.error(e.getMessage());
             throw new CustomException("Error when try to update customer on stripe");
@@ -94,6 +106,19 @@ public class StripeRootService {
     //endregion
 
     //region PaymentIntent
+    public PaymentIntentDto createCustomerPaymentIntent(CreatePaymentIntentRequestDto requestDto) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("amount", 2000);
+        params.put("currency", "usd");
+        params.put("confirm", true);
+
+        try {
+            PaymentIntent paymentIntent = PaymentIntent.create(params);
+        } catch (StripeException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
     //endregion
 
     //region PaymentMethod
@@ -138,7 +163,7 @@ public class StripeRootService {
     private Map<String, Object> makeAddressRequestParam(AddressDto addressDto) {
         Map<String, Object> address = new HashMap<>();
 
-        if(addressDto != null) {
+        if (addressDto != null) {
             address.put("city", addressDto.city);
             address.put("country", addressDto.country);
             address.put("state", addressDto.state);
@@ -149,14 +174,13 @@ public class StripeRootService {
     }
 
     private PaymentMethodDto makePaymentMethodResponseDtoFromStripeResponse(PaymentMethod paymentMethod) {
-        PaymentMethodDto paymentMethodDto = new PaymentMethodDto();
-        paymentMethodDto.id = paymentMethod.getId();
-        paymentMethodDto.customerId = paymentMethod.getCustomer();
-        paymentMethodDto.type = paymentMethod.getType();
-        paymentMethodDto.billingDetails = mapper.map(paymentMethod.getBillingDetails(), BillingDetailsDto.class);
-        paymentMethodDto.card = mapper.map(paymentMethod.getCard(), CardDto.class);
-
-        return paymentMethodDto;
+        return PaymentMethodDto.builder()
+                .id(paymentMethod.getId())
+                .customerId(paymentMethod.getCustomer())
+                .type(paymentMethod.getType())
+                .billingDetails(mapper.map(paymentMethod.getBillingDetails(), BillingDetailsDto.class))
+                .card(mapper.map(paymentMethod.getCard(), CardDto.class))
+                .build();
     }
 
     public PaymentMethodDto updatePaymentMethod(UpdatePaymentMethodRequestDto requestDto) {
