@@ -3,8 +3,6 @@ package org.sir.stripeintegration.host.controller;
 import lombok.AllArgsConstructor;
 import org.sir.stripeintegration.core.application.dtos.paymentIntent.request.CreatePaymentIntentRequestDto;
 import org.sir.stripeintegration.core.application.dtos.paymentIntent.response.PaymentIntentDto;
-import org.sir.stripeintegration.core.application.dtos.paymentMethod.request.CreatePaymentMethodRequestDto;
-import org.sir.stripeintegration.core.application.dtos.paymentMethod.response.PaymentMethodDto;
 import org.sir.stripeintegration.core.application.interfaces.service.IPaymentIntentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +33,7 @@ public class PaymentIntentController {
 
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<PaymentMethodDto> addCustomerPaymentIntent(
+    public Mono<PaymentIntentDto> addCustomerPaymentIntent(
             @RequestBody CreatePaymentIntentRequestDto requestDto) {
         return paymentIntentService.addCustomerPaymentIntent(requestDto);
     }

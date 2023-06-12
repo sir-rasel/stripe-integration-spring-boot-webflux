@@ -52,7 +52,6 @@ public class CustomerService implements ICustomerService {
             throw new CustomException("Error occurred on customer create");
         }
     }
-
     private Mono<CustomerEntity> saveCustomerEntity(CustomerDto customerDto) {
         CustomerEntity customer = mapper.map(customerDto, CustomerEntity.class);
         customer.setNewEntry(true);
@@ -70,12 +69,11 @@ public class CustomerService implements ICustomerService {
                         customerDto.setId(requestDto.id);
                         return customerDto;
                     });
-        } catch (CustomException ex) {
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
             throw new CustomException("Error occurred on customer update");
         }
     }
-
     private Mono<CustomerEntity> updateCustomerEntity(CustomerUpdateRequestDto requestDto) {
         Mono<CustomerEntity> customer = customerRepository.findById(requestDto.id);
         return customer.flatMap(customerEntity -> {
@@ -95,12 +93,11 @@ public class CustomerService implements ICustomerService {
                 stripeRootService.deleteCustomer(customerDto.id);
                 return deleteCustomerEntity(id);
             });
-        } catch (CustomException ex) {
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
             throw new CustomException("Error occurred on customer delete");
         }
     }
-
     private Mono<Void> deleteCustomerEntity(String id) {
         return customerRepository.deleteById(id);
     }

@@ -58,15 +58,13 @@ public class PaymentMethodService implements IPaymentMethodService {
                                 customerEntity, requestDto);
 
                         return savePaymentMethodEntity(paymentMethodDto)
-                                .doOnNext(paymentMethodEntity -> paymentMethodDto.id = paymentMethodEntity.id)
                                 .map(paymentMethodEntity -> paymentMethodDto);
-                    } catch (CustomException ex) {
+                    } catch (Exception ex) {
                         logger.error(ex.getMessage());
-                        throw new CustomException("Error on customer payment method crete");
+                        throw new CustomException("Error on customer payment method create");
                     }
                 });
     }
-
     private Mono<PaymentMethodEntity> savePaymentMethodEntity(PaymentMethodDto paymentMethodDto) {
         PaymentMethodEntity paymentMethodEntity = mapper.map(paymentMethodDto, PaymentMethodEntity.class);
         paymentMethodEntity.setNewEntry(true);
@@ -90,7 +88,6 @@ public class PaymentMethodService implements IPaymentMethodService {
                     return deletePaymentMethodEntity(id);
                 });
     }
-
     private Mono<Void> deletePaymentMethodEntity(String id) {
         return paymentMethodRepository.deleteById(id);
     }

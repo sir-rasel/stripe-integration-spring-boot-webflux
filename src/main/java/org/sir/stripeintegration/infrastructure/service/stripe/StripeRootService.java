@@ -152,7 +152,7 @@ public class StripeRootService {
         }
     }
 
-    public List<PaymentIntentDto> getCustomerAllPaymentIntent(
+    public List<PaymentIntentDto> getCustomerAllPaymentIntents(
             String customerId, Integer limit, String startingAfter, String endingBefore) {
         Map<String, Object> params = new HashMap<>();
         params.put("customer", customerId);
