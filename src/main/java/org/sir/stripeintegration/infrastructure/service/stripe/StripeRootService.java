@@ -64,6 +64,25 @@ public class StripeRootService {
         }
     }
 
+    public List<CustomerDto> getAllCustomers(Integer limit, String startingAfter, String endingBefore){
+        Map<String, Object> params = new HashMap<>();
+        params.put("limit", limit == null ? null : limit.longValue());
+        params.put("starting_after", startingAfter);
+        params.put("ending_before", endingBefore);
+
+        try {
+            CustomerCollection customers = Customer.list(params);
+
+            List<CustomerDto> customerDtos = new ArrayList<>();
+            customers.getData().forEach(customer -> customerDtos.add(getCustomerDtoFromCustomerObject(customer)));
+
+            return customerDtos;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to get customer list on stripe");
+        }
+    }
+
     private CustomerDto getCustomerDtoFromCustomerObject(Customer customer){
         return CustomerDto.builder()
                 .id(customer.getId())

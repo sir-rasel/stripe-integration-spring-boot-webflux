@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -37,8 +39,8 @@ public class CustomerService implements ICustomerService {
 
     @Override
     public Flux<CustomerDto> getAllCustomer(Integer limit, String startingAfter, String endingBefore) {
-        Flux<CustomerEntity> customers = customerRepository.findAll();
-        return customers.map(customer -> mapper.map(customer, CustomerDto.class));
+        List<CustomerDto> customers = stripeRootService.getAllCustomers(limit, startingAfter, endingBefore);
+        return Mono.just(customers).flatMapIterable(list -> list);
     }
 
     @Override
