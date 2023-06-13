@@ -3,7 +3,9 @@ package org.sir.stripeintegration.infrastructure.service.stripe;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
+import com.stripe.param.CustomerListParams;
 import com.stripe.param.CustomerListPaymentMethodsParams;
+import com.stripe.param.PaymentIntentListParams;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -64,13 +66,14 @@ public class StripeRootService {
         }
     }
 
-    public List<CustomerDto> getAllCustomers(Integer limit, String startingAfter, String endingBefore){
-        Map<String, Object> params = new HashMap<>();
-        params.put("limit", limit == null ? null : limit.longValue());
-        params.put("starting_after", startingAfter);
-        params.put("ending_before", endingBefore);
-
+    public List<CustomerDto> getAllCustomers(Integer limit, String startingAfter, String endingBefore) {
         try {
+            CustomerListParams params = CustomerListParams.builder()
+                    .setLimit(limit == null ? null : limit.longValue())
+                    .setStartingAfter(startingAfter)
+                    .setEndingBefore(endingBefore)
+                    .build();
+
             CustomerCollection customers = Customer.list(params);
 
             List<CustomerDto> customerDtos = new ArrayList<>();
@@ -83,7 +86,7 @@ public class StripeRootService {
         }
     }
 
-    private CustomerDto getCustomerDtoFromCustomerObject(Customer customer){
+    private CustomerDto getCustomerDtoFromCustomerObject(Customer customer) {
         return CustomerDto.builder()
                 .id(customer.getId())
                 .email(customer.getEmail())
@@ -145,7 +148,7 @@ public class StripeRootService {
         }
     }
 
-    private PaymentIntentDto getPaymentIntentDtoFromPaymentIntentObject(PaymentIntent paymentIntent){
+    private PaymentIntentDto getPaymentIntentDtoFromPaymentIntentObject(PaymentIntent paymentIntent) {
         return PaymentIntentDto.builder()
                 .id(paymentIntent.getId())
                 .amount(paymentIntent.getAmount().intValue())
@@ -160,7 +163,7 @@ public class StripeRootService {
         try {
             PaymentIntent paymentIntent = PaymentIntent.retrieve(id);
 
-            if(!paymentIntent.getCustomer().equals(customerId)){
+            if (!paymentIntent.getCustomer().equals(customerId)) {
                 throw new CustomException("This payment intent is not belongs to this customer");
             }
 
@@ -173,13 +176,14 @@ public class StripeRootService {
 
     public List<PaymentIntentDto> getCustomerAllPaymentIntents(
             String customerId, Integer limit, String startingAfter, String endingBefore) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("customer", customerId);
-        params.put("limit", limit);
-        params.put("starting_after", startingAfter);
-        params.put("ending_before", endingBefore);
-
         try {
+            PaymentIntentListParams params = PaymentIntentListParams.builder()
+                    .setCustomer(customerId)
+                    .setLimit(limit == null ? null : limit.longValue())
+                    .setStartingAfter(startingAfter)
+                    .setEndingBefore(endingBefore)
+                    .build();
+
             PaymentIntentCollection paymentIntents = PaymentIntent.list(params);
 
             List<PaymentIntentDto> paymentIntentDtos = new ArrayList<>();
