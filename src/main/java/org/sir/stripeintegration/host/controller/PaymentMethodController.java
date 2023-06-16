@@ -26,7 +26,7 @@ public class PaymentMethodController {
     @ResponseStatus(HttpStatus.OK)
     public Flux<PaymentMethodDto> getCustomerAllPaymentMethod(
             @PathVariable String customerId,
-            @RequestParam(required = false) Integer limit,
+            @RequestParam(required = false) Long limit,
             @RequestParam(required = false) String startingAfter,
             @RequestParam(required = false) String endingBefore) {
         return paymentMethodService.getCustomerAllPaymentMethod(customerId, limit, startingAfter, endingBefore);

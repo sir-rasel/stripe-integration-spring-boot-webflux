@@ -38,7 +38,7 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
-    public Flux<CustomerDto> getAllCustomer(Integer limit, String startingAfter, String endingBefore) {
+    public Flux<CustomerDto> getAllCustomer(Long limit, String startingAfter, String endingBefore) {
         List<CustomerDto> customers = stripeRootService.getAllCustomers(limit, startingAfter, endingBefore);
         return Mono.just(customers).flatMapIterable(list -> list);
     }
@@ -54,6 +54,7 @@ public class CustomerService implements ICustomerService {
             throw new CustomException("Error occurred on customer create");
         }
     }
+
     private Mono<CustomerEntity> saveCustomerEntity(CustomerDto customerDto) {
         CustomerEntity customer = mapper.map(customerDto, CustomerEntity.class);
         customer.setNewEntry(true);
@@ -66,16 +67,13 @@ public class CustomerService implements ICustomerService {
         try {
             return updateCustomerEntity(requestDto)
                     .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())))
-                    .map(customerEntity -> {
-                        CustomerDto customerDto = stripeRootService.updateCustomer(requestDto);
-                        customerDto.setId(requestDto.id);
-                        return customerDto;
-                    });
+                    .map(customerEntity -> stripeRootService.updateCustomer(requestDto));
         } catch (Exception ex) {
             logger.error(ex.getMessage());
             throw new CustomException("Error occurred on customer update");
         }
     }
+
     private Mono<CustomerEntity> updateCustomerEntity(CustomerUpdateRequestDto requestDto) {
         Mono<CustomerEntity> customer = customerRepository.findById(requestDto.id);
         return customer.flatMap(customerEntity -> {
@@ -100,6 +98,7 @@ public class CustomerService implements ICustomerService {
             throw new CustomException("Error occurred on customer delete");
         }
     }
+
     private Mono<Void> deleteCustomerEntity(String id) {
         return customerRepository.deleteById(id);
     }

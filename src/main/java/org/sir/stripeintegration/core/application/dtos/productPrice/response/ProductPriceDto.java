@@ -1,12 +1,14 @@
 package org.sir.stripeintegration.core.application.dtos.productPrice.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.sir.stripeintegration.core.application.dtos.productPrice.ProductPriceCommonDto;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductPriceDto {
+@Builder
+public class ProductPriceDto extends ProductPriceCommonDto {
     public String id;
+    public String type;
 }

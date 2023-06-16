@@ -25,7 +25,7 @@ public class PaymentIntentController {
     @ResponseStatus(HttpStatus.OK)
     public Flux<PaymentIntentDto> getCustomerAllPaymentIntent(
             @PathVariable String customerId,
-            @RequestParam(required = false) Integer limit,
+            @RequestParam(required = false) Long limit,
             @RequestParam(required = false) String startingAfter,
             @RequestParam(required = false) String endingBefore) {
         return paymentIntentService.getCustomerAllPaymentIntent(customerId, limit, startingAfter, endingBefore);

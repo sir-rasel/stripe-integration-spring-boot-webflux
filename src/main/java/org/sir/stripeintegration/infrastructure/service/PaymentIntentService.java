@@ -39,7 +39,7 @@ public class PaymentIntentService implements IPaymentIntentService {
 
     @Override
     public Flux<PaymentIntentDto> getCustomerAllPaymentIntent(
-            String customerId, Integer limit, String startingAfter, String endingBefore) {
+            String customerId, Long limit, String startingAfter, String endingBefore) {
         return customerRepository.findById(customerId)
                 .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.CUSTOMER_NOT_FOUND.getMessage())))
                 .map(customerEntity -> stripeRootService.getCustomerAllPaymentIntents(

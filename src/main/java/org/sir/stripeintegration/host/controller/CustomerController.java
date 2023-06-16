@@ -25,7 +25,7 @@ public class CustomerController {
     @GetMapping("/all")
     @ResponseStatus(HttpStatus.OK)
     public Flux<CustomerDto> getAllCustomer(
-            @RequestParam(required = false) Integer limit,
+            @RequestParam(required = false) Long limit,
             @RequestParam(required = false) String startingAfter,
             @RequestParam(required = false) String endingBefore) {
         return customerService.getAllCustomer(limit, startingAfter, endingBefore);

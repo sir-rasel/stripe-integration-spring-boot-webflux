@@ -1,5 +1,7 @@
 package org.sir.stripeintegration.core.domain;
 
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.sir.stripeintegration.core.shared.EntityAuditFields;
@@ -14,6 +16,21 @@ import org.springframework.data.domain.Persistable;
 public class ProductEntity extends EntityAuditFields implements Persistable<String> {
     @Id
     public String id;
+
+    @NotNull
+    public String name;
+
+    @Nullable
+    public String description;
+
+    @Nullable
+    public String defaultPriceId;
+
+    @Nullable
+    public Boolean active;
+
+    @Nullable
+    public Boolean shippable;
 
     @Transient
     private boolean isNewEntry;

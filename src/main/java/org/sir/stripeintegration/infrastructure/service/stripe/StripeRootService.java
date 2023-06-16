@@ -3,9 +3,7 @@ package org.sir.stripeintegration.infrastructure.service.stripe;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
-import com.stripe.param.CustomerListParams;
-import com.stripe.param.CustomerListPaymentMethodsParams;
-import com.stripe.param.PaymentIntentListParams;
+import com.stripe.param.*;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -17,6 +15,9 @@ import org.sir.stripeintegration.core.application.dtos.paymentIntent.response.Pa
 import org.sir.stripeintegration.core.application.dtos.paymentMethod.request.CreatePaymentMethodRequestDto;
 import org.sir.stripeintegration.core.application.dtos.paymentMethod.request.UpdatePaymentMethodRequestDto;
 import org.sir.stripeintegration.core.application.dtos.paymentMethod.response.PaymentMethodDto;
+import org.sir.stripeintegration.core.application.dtos.product.request.CreateProductRequestDto;
+import org.sir.stripeintegration.core.application.dtos.product.request.UpdateProductRequestDto;
+import org.sir.stripeintegration.core.application.dtos.product.response.ProductDto;
 import org.sir.stripeintegration.core.domain.CustomerEntity;
 import org.sir.stripeintegration.core.shared.dtoModels.AddressDto;
 import org.sir.stripeintegration.core.shared.dtoModels.BillingDetailsDto;
@@ -52,24 +53,25 @@ public class StripeRootService {
 
     //region Customer
     public CustomerDto createCustomer(CustomerCreateRequestDto requestDto) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("email", requestDto.email);
-        params.put("name", requestDto.name);
-        params.put("phone", requestDto.phone);
+        CustomerCreateParams params = CustomerCreateParams.builder()
+                .setEmail(requestDto.email)
+                .setName(requestDto.name)
+                .setPhone(requestDto.phone)
+                .build();
 
         try {
             Customer customer = Customer.create(params);
             return getCustomerDtoFromCustomerObject(customer);
         } catch (StripeException e) {
             logger.error(e.getMessage());
-            throw new CustomException("Error when try to crete customer on stripe");
+            throw new CustomException("Error when try to create customer on stripe");
         }
     }
 
-    public List<CustomerDto> getAllCustomers(Integer limit, String startingAfter, String endingBefore) {
+    public List<CustomerDto> getAllCustomers(Long limit, String startingAfter, String endingBefore) {
         try {
             CustomerListParams params = CustomerListParams.builder()
-                    .setLimit(limit == null ? null : limit.longValue())
+                    .setLimit(limit)
                     .setStartingAfter(startingAfter)
                     .setEndingBefore(endingBefore)
                     .build();
@@ -96,10 +98,11 @@ public class StripeRootService {
     }
 
     public CustomerDto updateCustomer(CustomerUpdateRequestDto requestDto) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("email", requestDto.email);
-        params.put("name", requestDto.name);
-        params.put("phone", requestDto.phone);
+        CustomerUpdateParams params = CustomerUpdateParams.builder()
+                .setEmail(requestDto.email)
+                .setName(requestDto.name)
+                .setPhone(requestDto.phone)
+                .build();
 
         try {
             Customer customer = Customer.retrieve(requestDto.id);
@@ -125,12 +128,6 @@ public class StripeRootService {
 
     //region PaymentIntent
     public PaymentIntentDto createPaymentIntent(CreatePaymentIntentRequestDto requestDto) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("amount", requestDto.amount);
-        params.put("currency", requestDto.currency);
-        params.put("confirm", true);
-        params.put("customer", requestDto.customerId);
-
         try {
             Customer customer = Customer.retrieve(requestDto.customerId);
 
@@ -138,13 +135,20 @@ public class StripeRootService {
                 throw new CustomException("Customer default payment method not set yet");
             }
 
-            params.put("payment_method", customer.getInvoiceSettings().getDefaultPaymentMethod());
+            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                    .setAmount(requestDto.amount.longValue())
+                    .setCurrency(requestDto.currency)
+                    .setConfirm(true)
+                    .setCustomer(requestDto.customerId)
+                    .setPaymentMethod(customer.getInvoiceSettings().getDefaultPaymentMethod())
+                    .build();
+
             PaymentIntent paymentIntent = PaymentIntent.create(params);
 
             return getPaymentIntentDtoFromPaymentIntentObject(paymentIntent);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            throw new CustomException("Error when try to crete payment intent on stripe");
+            throw new CustomException("Error when try to create payment intent on stripe");
         }
     }
 
@@ -175,11 +179,11 @@ public class StripeRootService {
     }
 
     public List<PaymentIntentDto> getCustomerAllPaymentIntents(
-            String customerId, Integer limit, String startingAfter, String endingBefore) {
+            String customerId, Long limit, String startingAfter, String endingBefore) {
         try {
             PaymentIntentListParams params = PaymentIntentListParams.builder()
                     .setCustomer(customerId)
-                    .setLimit(limit == null ? null : limit.longValue())
+                    .setLimit(limit)
                     .setStartingAfter(startingAfter)
                     .setEndingBefore(endingBefore)
                     .build();
@@ -294,13 +298,13 @@ public class StripeRootService {
     }
 
     public List<PaymentMethodDto> getCustomerAllPaymentMethods(
-            String customerId, Integer limit, String startingAfter, String endingBefore) {
+            String customerId, Long limit, String startingAfter, String endingBefore) {
         try {
             Customer customer = Customer.retrieve(customerId);
 
             CustomerListPaymentMethodsParams params = CustomerListPaymentMethodsParams.builder()
                     .setType(CustomerListPaymentMethodsParams.Type.CARD)
-                    .setLimit(limit == null ? null : limit.longValue())
+                    .setLimit(limit)
                     .setStartingAfter(startingAfter)
                     .setEndingBefore(endingBefore)
                     .build();
@@ -355,6 +359,99 @@ public class StripeRootService {
     //endregion
 
     //region Product
+    public ProductDto createProduct(CreateProductRequestDto requestDto) {
+        ProductCreateParams params = ProductCreateParams.builder()
+                .setName(requestDto.name)
+                .setDescription(requestDto.description)
+                .setActive(requestDto.active)
+                .setShippable(requestDto.shippable)
+                .addAllImage(requestDto.images)
+                .build();
+
+        try {
+            Product product = Product.create(params);
+
+            return getProductDtoFromProductObject(product);
+        } catch (StripeException e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to create product on stripe");
+        }
+    }
+
+    private ProductDto getProductDtoFromProductObject(Product product) {
+        return ProductDto.builder()
+                .id(product.getId())
+                .defaultPriceId(product.getDefaultPrice())
+                .name(product.getName())
+                .active(product.getActive())
+                .shippable(product.getShippable())
+                .description(product.getDescription())
+                .images(product.getImages())
+                .build();
+    }
+
+    public ProductDto updateProduct(UpdateProductRequestDto requestDto) {
+        ProductUpdateParams params = ProductUpdateParams.builder()
+                .setActive(requestDto.active)
+                .setName(requestDto.name)
+                .setDescription(requestDto.description)
+                .setShippable(requestDto.shippable)
+                .setImages(requestDto.images)
+                .setDefaultPrice(requestDto.defaultPriceId)
+                .build();
+
+        try {
+            Product product = Product.retrieve(requestDto.id);
+            product = product.update(params);
+
+            return getProductDtoFromProductObject(product);
+        } catch (StripeException e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to update product on stripe");
+        }
+    }
+
+    public ProductDto getProductById(String id) {
+        try {
+            Product product = Product.retrieve(id);
+            return getProductDtoFromProductObject(product);
+        } catch (StripeException e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to get product on stripe");
+        }
+    }
+
+    public List<ProductDto> getAllProducts(
+            Boolean active, Boolean shippable, Long limit, String startingAfter, String endingBefore) {
+        ProductListParams params = ProductListParams.builder()
+                .setActive(active)
+                .setShippable(shippable)
+                .setLimit(limit)
+                .setStartingAfter(startingAfter)
+                .setEndingBefore(endingBefore)
+                .build();
+
+        try {
+            ProductCollection products = Product.list(params);
+            List<ProductDto> productDtos = new ArrayList<>();
+
+            products.getData().forEach(product -> productDtos.add(getProductDtoFromProductObject(product)));
+            return productDtos;
+        } catch (StripeException e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to get products on stripe");
+        }
+    }
+
+    public void deleteProductById(String id) {
+        try {
+            Product product = Product.retrieve(id);
+            product.delete();
+        } catch (StripeException e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when product try to delete from stripe");
+        }
+    }
     //endregion
 
     //region ProductPrice

@@ -8,6 +8,6 @@ import reactor.core.publisher.Mono;
 public interface IPaymentIntentService {
     Mono<PaymentIntentDto> getPaymentIntent(String id);
     Flux<PaymentIntentDto> getCustomerAllPaymentIntent(
-            String customerId, Integer limit, String startingAfter, String endingBefore);
+            String customerId, Long limit, String startingAfter, String endingBefore);
     Mono<PaymentIntentDto> addCustomerPaymentIntent(CreatePaymentIntentRequestDto requestDto);
 }

@@ -1,20 +1,20 @@
 package org.sir.stripeintegration.core.application.dtos.paymentIntent.request;
 
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 @AllArgsConstructor
-@NoArgsConstructor(force = true)
+@NoArgsConstructor
 public class CreatePaymentIntentRequestDto {
-    @NonNull
+    @NotNull
     public String customerId;
 
-    @NonNull
+    @NotNull
     @Min(50)
     public Integer amount;
 
-    @NonNull
+    @NotNull
     public String currency = "usd";
 }

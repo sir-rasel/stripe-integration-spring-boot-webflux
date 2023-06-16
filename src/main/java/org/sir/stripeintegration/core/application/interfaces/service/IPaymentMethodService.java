@@ -10,7 +10,7 @@ public interface IPaymentMethodService {
     Mono<PaymentMethodDto> getPaymentMethod(String id);
 
     Flux<PaymentMethodDto> getCustomerAllPaymentMethod(
-            String customerId, Integer limit, String startingAfter, String endingBefore);
+            String customerId, Long limit, String startingAfter, String endingBefore);
 
     Mono<PaymentMethodDto> addCustomerPaymentMethod(CreatePaymentMethodRequestDto requestDto);
 
