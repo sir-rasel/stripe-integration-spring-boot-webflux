@@ -18,5 +18,5 @@ public class RecurringDto {
     Long intervalCount;
 
     @SerializedName("usage_type")
-    String usageType;
+    String usageType = "licensed";
 }

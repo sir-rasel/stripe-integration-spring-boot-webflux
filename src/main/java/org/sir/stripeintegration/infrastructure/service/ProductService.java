@@ -2,8 +2,6 @@ package org.sir.stripeintegration.infrastructure.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.sir.stripeintegration.core.application.dtos.customer.response.CustomerDto;
 import org.sir.stripeintegration.core.application.dtos.product.request.CreateProductRequestDto;
 import org.sir.stripeintegration.core.application.dtos.product.request.UpdateProductRequestDto;
 import org.sir.stripeintegration.core.application.dtos.product.response.ProductDto;
@@ -29,7 +27,6 @@ public class ProductService implements IProductService {
     private final ProductRepository productRepository;
 
     private final StripeRootService stripeRootService;
-    private final ModelMapper mapper = new ModelMapper();
 
     @Override
     public Mono<ProductDto> getProduct(String id) {
@@ -61,10 +58,14 @@ public class ProductService implements IProductService {
     }
 
     private Mono<ProductEntity> saveProductEntity(ProductDto productDto) {
-        ProductEntity product = mapper.map(productDto, ProductEntity.class);
-        product.setNewEntry(true);
+        ProductEntity product = getEntityFromDto(productDto);
 
         return productRepository.save(product);
+    }
+
+    private ProductEntity getEntityFromDto(ProductDto dto) {
+        return new ProductEntity(
+                dto.id, dto.name, dto.description, dto.defaultPriceId, dto.active, dto.shippable, true);
     }
 
     @Override
@@ -87,6 +88,7 @@ public class ProductService implements IProductService {
             productEntity.setActive(requestDto.active);
             productEntity.setShippable(requestDto.shippable);
             productEntity.setDefaultPriceId(requestDto.defaultPriceId);
+            productEntity.setNewEntry(false);
 
             return productRepository.save(productEntity);
         });

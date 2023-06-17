@@ -4,8 +4,10 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.sir.stripeintegration.core.shared.EntityAuditFields;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
@@ -15,6 +17,8 @@ import org.springframework.data.domain.Persistable;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @EntityScan
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductPriceEntity extends EntityAuditFields implements Persistable<String> {
     @Id
     public String id;
@@ -28,7 +32,7 @@ public class ProductPriceEntity extends EntityAuditFields implements Persistable
     public String type;
 
     @Nullable
-    public String nickname;
+    public String nickName;
 
     @Nullable
     public String currency;
@@ -37,7 +41,7 @@ public class ProductPriceEntity extends EntityAuditFields implements Persistable
     public Boolean active;
 
     @NotNull
-    public Integer unitAmount;
+    public Long unitAmount;
 
     @Transient
     private boolean isNewEntry;

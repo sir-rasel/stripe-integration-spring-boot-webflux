@@ -18,9 +18,6 @@ public class UpdateProductRequestDto extends ProductCommonDto {
     @NotEmpty
     @NotBlank
     public String id;
-
-    @NotNull
-    @NotEmpty
-    @NotBlank
+    
     public String defaultPriceId;
 }

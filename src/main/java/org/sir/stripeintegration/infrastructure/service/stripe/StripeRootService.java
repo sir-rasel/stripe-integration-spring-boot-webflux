@@ -18,10 +18,14 @@ import org.sir.stripeintegration.core.application.dtos.paymentMethod.response.Pa
 import org.sir.stripeintegration.core.application.dtos.product.request.CreateProductRequestDto;
 import org.sir.stripeintegration.core.application.dtos.product.request.UpdateProductRequestDto;
 import org.sir.stripeintegration.core.application.dtos.product.response.ProductDto;
+import org.sir.stripeintegration.core.application.dtos.productPrice.request.CreateProductPriceRequestDto;
+import org.sir.stripeintegration.core.application.dtos.productPrice.request.UpdateProductPriceRequestDto;
+import org.sir.stripeintegration.core.application.dtos.productPrice.response.ProductPriceDto;
 import org.sir.stripeintegration.core.domain.CustomerEntity;
 import org.sir.stripeintegration.core.shared.dtoModels.AddressDto;
 import org.sir.stripeintegration.core.shared.dtoModels.BillingDetailsDto;
 import org.sir.stripeintegration.core.shared.dtoModels.CardDto;
+import org.sir.stripeintegration.core.shared.dtoModels.RecurringDto;
 import org.sir.stripeintegration.core.shared.exceptions.CustomException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -365,7 +369,6 @@ public class StripeRootService {
                 .setDescription(requestDto.description)
                 .setActive(requestDto.active)
                 .setShippable(requestDto.shippable)
-                .addAllImage(requestDto.images)
                 .build();
 
         try {
@@ -455,6 +458,96 @@ public class StripeRootService {
     //endregion
 
     //region ProductPrice
+    public ProductPriceDto createPrice(CreateProductPriceRequestDto requestDto) {
+        Map<String, Object> params = new HashMap<>();
+
+        if (requestDto.recurring != null) {
+            Map<String, Object> recurring = new HashMap<>();
+            recurring.put("interval", requestDto.recurring.getInterval());
+            recurring.put("interval_count", requestDto.recurring.getIntervalCount());
+            recurring.put("usage_type", requestDto.recurring.getUsageType());
+
+            params.put("recurring", recurring);
+        }
+
+        params.put("unit_amount", requestDto.unitAmount);
+        params.put("currency", requestDto.currency);
+        params.put("product", requestDto.productId);
+        params.put("nickname", requestDto.nickName);
+        params.put("active", requestDto.active);
+
+        try {
+            Price price = Price.create(params);
+            return getProductPriceDtoFromPriceObject(price);
+        } catch (StripeException e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to create price on stripe");
+        }
+    }
+
+    public ProductPriceDto getProductPriceDtoFromPriceObject(Price price) {
+        return ProductPriceDto.builder()
+                .id(price.getId())
+                .type(price.getType())
+                .active(price.getActive())
+                .productId(price.getProduct())
+                .currency(price.getCurrency())
+                .nickName(price.getNickname())
+                .unitAmount(price.getUnitAmount())
+                .recurring(price.getRecurring() == null ? null : mapper.map(price.getRecurring(), RecurringDto.class))
+                .build();
+    }
+
+    public ProductPriceDto getPriceById(String id) {
+        try {
+            Price price = Price.retrieve(id);
+            return getProductPriceDtoFromPriceObject(price);
+        } catch (StripeException e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to get price on stripe");
+        }
+    }
+
+    public List<ProductPriceDto> getProductAllPrices(
+            String productId, Boolean active, String type, Long limit, String startingAfter, String endingBefore) {
+        PriceListParams params = PriceListParams.builder()
+                .setProduct(productId)
+                .setActive(active)
+                .setType(type == null ? null : PriceListParams.Type.valueOf(type))
+                .setLimit(limit)
+                .setStartingAfter(startingAfter)
+                .setEndingBefore(endingBefore)
+                .build();
+
+        try {
+            PriceCollection prices = Price.list(params);
+
+            List<ProductPriceDto> productPriceDtos = new ArrayList<>();
+            prices.getData().forEach(price ->
+                    productPriceDtos.add(getProductPriceDtoFromPriceObject(price)));
+
+            return productPriceDtos;
+        } catch (StripeException e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to get prices on stripe");
+        }
+    }
+
+    public ProductPriceDto updatePrice(UpdateProductPriceRequestDto requestDto) {
+        PriceUpdateParams params = PriceUpdateParams.builder()
+                .setActive(requestDto.active)
+                .setNickname(requestDto.nickName)
+                .build();
+
+        try {
+            Price price = Price.retrieve(requestDto.id);
+            price = price.update(params);
+            return getProductPriceDtoFromPriceObject(price);
+        } catch (StripeException e) {
+            logger.error(e.getMessage());
+            throw new CustomException("Error when try to update price on stripe");
+        }
+    }
     //endregion
 
     //region Subscription
