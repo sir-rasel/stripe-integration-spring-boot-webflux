@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.sir.stripeintegration.core.shared.dtoModels.SubscriptionItem;
+import org.sir.stripeintegration.core.shared.dtoModels.SubscriptionItemDto;
 
 import java.util.List;
 
@@ -17,9 +17,10 @@ public class CreateSubscriptionDto {
     @NotEmpty
     public String customerId;
 
-    public List<SubscriptionItem> items;
+    public List<SubscriptionItemDto> items;
     public Boolean cancelAtPeriodEnd = false;
     public String defaultPaymentMethodId;
     public String description;
-    public String cancelAt;
+    public Long cancelAt;
+    public String currency;
 }

@@ -1,17 +1,21 @@
 package org.sir.stripeintegration.core.application.dtos.subscription.request;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.sir.stripeintegration.core.shared.dtoModels.SubscriptionItem;
+import org.sir.stripeintegration.core.shared.dtoModels.SubscriptionItemDto;
 
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateSubscriptionDto {
-    public List<SubscriptionItem> items;
+    @NotNull
+    public String id;
+
+    public List<SubscriptionItemDto> items;
     public Boolean cancelAtPeriodEnd = false;
     public String defaultPaymentMethodId;
     public String description;
-    public String cancelAt;
+    public Long cancelAt;
 }

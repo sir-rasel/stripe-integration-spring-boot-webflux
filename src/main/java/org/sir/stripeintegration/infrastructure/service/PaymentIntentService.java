@@ -60,7 +60,7 @@ public class PaymentIntentService implements IPaymentIntentService {
                                 .map(paymentMethodEntity -> paymentIntentDto);
                     } catch (Exception ex) {
                         logger.error(ex.getMessage());
-                        throw new CustomException("Error on customer payment intent create");
+                        return Mono.error(new CustomException("Error on customer payment intent create"));
                     }
                 });
     }

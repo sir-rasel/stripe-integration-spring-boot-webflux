@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.sir.stripeintegration.core.shared.dtoModels.SubscriptionItem;
+import org.sir.stripeintegration.core.shared.dtoModels.SubscriptionItemDto;
 
 import java.util.List;
 
@@ -16,12 +16,12 @@ public class SubscriptionDto {
     public String id;
     public Boolean cancelAtPeriodEnd;
     public String currency;
-    public String currentPeriodEnd;
-    public String currentPeriodStart;
+    public Long currentPeriodEnd;
+    public Long currentPeriodStart;
     public String customerId;
-    public String defaultPaymentMethod;
+    public String defaultPaymentMethodId;
     public String description;
     public String status;
-    public String cancelAt;
-    public List<SubscriptionItem> items;
+    public Long cancelAt;
+    public List<SubscriptionItemDto> items;
 }

@@ -30,7 +30,13 @@ public class SubscriptionEntity extends EntityAuditFields implements Persistable
     public String description;
 
     @Nullable
-    public String cancelAt;
+    public Long cancelAt;
+
+    @Nullable
+    public Long currentPeriodEnd;
+
+    @Nullable
+    public Long currentPeriodStart;
 
     @Transient
     private boolean isNewEntry;

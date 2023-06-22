@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SubscriptionItem {
+public class SubscriptionItemDto {
     public String priceId;
-    public Long quantity;
+    public Long quantity = 1L;
 }
