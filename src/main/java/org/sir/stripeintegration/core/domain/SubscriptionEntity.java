@@ -1,5 +1,7 @@
 package org.sir.stripeintegration.core.domain;
 
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.sir.stripeintegration.core.shared.EntityAuditFields;
@@ -11,9 +13,24 @@ import org.springframework.data.domain.Persistable;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @EntityScan
-public class SubscriptionEntity  extends EntityAuditFields implements Persistable<String> {
+public class SubscriptionEntity extends EntityAuditFields implements Persistable<String> {
     @Id
     public String id;
+
+    @NotNull
+    public String customerId;
+
+    @Nullable
+    public String currency;
+
+    @NotNull
+    public String status;
+
+    @Nullable
+    public String description;
+
+    @Nullable
+    public String cancelAt;
 
     @Transient
     private boolean isNewEntry;
