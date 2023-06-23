@@ -552,15 +552,15 @@ public class StripeRootService {
 
     //region Subscription
     public SubscriptionDto createSubscription(CreateSubscriptionDto requestDto) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("customer", requestDto.customerId);
-        params.put("cancel_at_period_end", requestDto.cancelAtPeriodEnd);
-        params.put("cancel_at", requestDto.cancelAt);
-        params.put("currency", requestDto.currency);
-        params.put("description", requestDto.description);
-        params.put("default_payment_method", requestDto.defaultPaymentMethodId);
-        params.put("items", getSubscriptionItemsParamsMapFromRequestItems(requestDto.items));
-
+        SubscriptionCreateParams params = SubscriptionCreateParams.builder()
+                .setCustomer(requestDto.customerId)
+                .setCurrency(requestDto.currency)
+                .setCancelAt(requestDto.cancelAt)
+                .setDescription(requestDto.description)
+                .setDefaultPaymentMethod(requestDto.defaultPaymentMethodId)
+                .setCancelAtPeriodEnd(requestDto.cancelAtPeriodEnd)
+                .addAllItem(getCreateSubscriptionItemsParamsMapFromRequestItems(requestDto.items))
+                .build();
         try {
             Subscription subscription = Subscription.create(params);
             return getSubscriptionDtoFromSubscriptionObject(subscription);
@@ -570,13 +570,14 @@ public class StripeRootService {
         }
     }
 
-    private List<Object> getSubscriptionItemsParamsMapFromRequestItems(List<SubscriptionItemDto> items) {
-        List<Object> subscriptionItems = new ArrayList<>();
+    private List<SubscriptionCreateParams.Item> getCreateSubscriptionItemsParamsMapFromRequestItems(List<SubscriptionItemDto> items) {
+        List<SubscriptionCreateParams.Item> subscriptionItems = new ArrayList<>();
 
         items.forEach(item -> {
-            Map<String, Object> itemMap = new HashMap<>();
-            itemMap.put("price", item.priceId);
-            itemMap.put("quantity", item.quantity);
+            SubscriptionCreateParams.Item itemMap = SubscriptionCreateParams.Item.builder()
+                    .setPrice(item.priceId)
+                    .setQuantity(item.quantity)
+                    .build();
             subscriptionItems.add(itemMap);
         });
 
@@ -628,7 +629,7 @@ public class StripeRootService {
                 .setLimit(limit)
                 .setStartingAfter(startingAfter)
                 .setEndingBefore(endingBefore)
-                .setStatus(SubscriptionListParams.Status.valueOf(status))
+                .setStatus(status == null ? null : SubscriptionListParams.Status.valueOf(status))
                 .build();
         try {
             SubscriptionCollection subscriptions = Subscription.list(params);
@@ -646,13 +647,13 @@ public class StripeRootService {
     }
 
     public SubscriptionDto updateSubscription(UpdateSubscriptionDto requestDto) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("cancel_at_period_end", requestDto.cancelAtPeriodEnd);
-        params.put("cancel_at", requestDto.cancelAt);
-        params.put("description", requestDto.description);
-        params.put("default_payment_method", requestDto.defaultPaymentMethodId);
-        params.put("items", getSubscriptionItemsParamsMapFromRequestItems(requestDto.items));
-
+        SubscriptionUpdateParams params = SubscriptionUpdateParams.builder()
+                .setCancelAt(requestDto.cancelAt)
+                .setCancelAtPeriodEnd(requestDto.cancelAtPeriodEnd)
+                .setDescription(requestDto.description)
+                .setDefaultPaymentMethod(requestDto.defaultPaymentMethodId)
+                .addAllItem(getUpdateSubscriptionItemsParamsMapFromRequestItems(requestDto.items))
+                .build();
         try {
             Subscription subscription = Subscription.retrieve(requestDto.id);
             subscription = subscription.update(params);
@@ -660,9 +661,24 @@ public class StripeRootService {
             return getSubscriptionDtoFromSubscriptionObject(subscription);
         } catch (StripeException e) {
             logger.error(e.getMessage());
-            throw new CustomException("Error when try to get subscriptions from stripe");
+            throw new CustomException("Error when try to update subscription from stripe");
         }
     }
+
+    private List<SubscriptionUpdateParams.Item> getUpdateSubscriptionItemsParamsMapFromRequestItems(List<SubscriptionItemDto> items) {
+        List<SubscriptionUpdateParams.Item> subscriptionItems = new ArrayList<>();
+
+        items.forEach(item -> {
+            SubscriptionUpdateParams.Item itemMap = SubscriptionUpdateParams.Item.builder()
+                    .setPrice(item.priceId)
+                    .setQuantity(item.quantity)
+                    .build();
+            subscriptionItems.add(itemMap);
+        });
+
+        return subscriptionItems;
+    }
+
 
     public SubscriptionDto cancelSubscription(String id) {
         try {

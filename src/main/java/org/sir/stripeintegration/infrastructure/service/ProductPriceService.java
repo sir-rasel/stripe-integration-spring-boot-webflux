@@ -10,6 +10,7 @@ import org.sir.stripeintegration.core.domain.ProductPriceEntity;
 import org.sir.stripeintegration.core.shared.constant.ErrorMessage;
 import org.sir.stripeintegration.core.shared.exceptions.CustomException;
 import org.sir.stripeintegration.infrastructure.persistance.repository.ProductPriceRepository;
+import org.sir.stripeintegration.infrastructure.persistance.repository.ProductRepository;
 import org.sir.stripeintegration.infrastructure.service.stripe.StripeRootService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,14 +18,13 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 @Service
 @AllArgsConstructor
 @Slf4j
 public class ProductPriceService implements IProductPriceService {
     private static final Logger logger = LoggerFactory.getLogger(ProductPriceService.class);
     private final ProductPriceRepository productPriceRepository;
+    private final ProductRepository productRepository;
 
     private final StripeRootService stripeRootService;
 
@@ -38,9 +38,11 @@ public class ProductPriceService implements IProductPriceService {
     @Override
     public Flux<ProductPriceDto> getProductAllPrices(
             String productId, Boolean active, String type, Long limit, String startingAfter, String endingBefore) {
-        List<ProductPriceDto> productPriceDtos = stripeRootService.getProductAllPrices(
-                productId, active, type, limit, startingAfter, endingBefore);
-        return Mono.just(productPriceDtos).flatMapIterable(list -> list);
+        return productRepository.findById(productId)
+                .switchIfEmpty(Mono.error(new CustomException(ErrorMessage.PRODUCT_NOT_FOUND.getMessage())))
+                .map(productEntity -> stripeRootService.getProductAllPrices(
+                        productId, active, type, limit, startingAfter, endingBefore))
+                .flatMapIterable(list -> list);
     }
 
     @Override

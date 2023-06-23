@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.sir.stripeintegration.core.shared.dtoModels.SubscriptionItemDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -13,7 +14,7 @@ public class UpdateSubscriptionDto {
     @NotNull
     public String id;
 
-    public List<SubscriptionItemDto> items;
+    public List<SubscriptionItemDto> items = new ArrayList<>();
     public Boolean cancelAtPeriodEnd = false;
     public String defaultPaymentMethodId;
     public String description;

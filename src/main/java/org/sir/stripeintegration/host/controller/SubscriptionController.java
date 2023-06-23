@@ -47,7 +47,7 @@ public class SubscriptionController {
     }
 
     @DeleteMapping("/cancel/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     public Mono<SubscriptionDto> cancelSubscription(@PathVariable String id) {
         return subscriptionService.cancelSubscription(id);
     }
