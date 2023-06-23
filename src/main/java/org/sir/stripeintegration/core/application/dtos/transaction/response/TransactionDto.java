@@ -4,9 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransactionDto {
-    public String id;
+    public UUID id;
+    public String customerId;
+    public String paymentIntentId;
+    public Long amount;
+    public Boolean isSuccess;
 }

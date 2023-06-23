@@ -51,8 +51,7 @@ public class StripeRootService {
 
     @PostConstruct
     public void init() {
-        Stripe.apiKey = "sk_test_51NCRSGD1Nw0D8DcC8vLiSufo7XBq69Tl1OZcMpMe2MSjyeXchjCW6ZisgKBN0sGbRAD3vOPsYv4SgsT4TB" +
-                "eunfo300hToIi5ZE";
+        Stripe.apiKey = stripeSecretKey;
     }
 
     //region Customer
