@@ -34,6 +34,10 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public Flux<TransactionDto> getCustomerAllTransaction(String customerId, Integer pageSize, Integer pageIndex) {
-        return null;
+        pageSize = pageSize == null ? 10 : pageSize;
+        pageIndex = pageIndex == null ? 0 : pageIndex;
+
+        return transactionRepository.getTransactionPagingData(customerId, pageSize, pageIndex * pageSize)
+                .map(transactionEntity -> mapper.map(transactionEntity, TransactionDto.class));
     }
 }
