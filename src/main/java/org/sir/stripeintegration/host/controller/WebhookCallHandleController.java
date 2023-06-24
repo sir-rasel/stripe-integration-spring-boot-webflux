@@ -9,7 +9,8 @@ import com.stripe.net.Webhook;
 import lombok.AllArgsConstructor;
 import org.sir.stripeintegration.core.application.interfaces.service.IWebhookHandler;
 import org.sir.stripeintegration.core.shared.exceptions.CustomException;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,8 +25,8 @@ import reactor.core.publisher.Mono;
 public class WebhookCallHandleController {
     public final IWebhookHandler webhookHandler;
 
-    @Value("${stripe.key.webhook}")
-    private String stripeWebhookKey;
+    @Autowired
+    private Environment environment;
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
@@ -51,6 +52,8 @@ public class WebhookCallHandleController {
     }
 
     private Event validateStripeHeadersAndReturnEvent(String payload, String headers) {
+        String stripeWebhookKey = environment.getProperty("stripe.key.webhook");
+
         try {
             return Webhook.constructEvent(payload, headers, stripeWebhookKey);
         } catch (JsonSyntaxException e) {
