@@ -25,13 +25,13 @@ public class AuthenticationManager implements ReactiveAuthenticationManager {
     public Mono<Authentication> authenticate(Authentication authentication) {
         String authToken = authentication.getCredentials().toString();
 
-        String username;
+        String userEmail;
         try {
-            username = jwtUtil.getUsernameFromToken(authToken);
+            userEmail = jwtUtil.getUsernameFromToken(authToken);
         } catch (Exception e) {
-            username = null;
+            userEmail = null;
         }
-        if (username != null && jwtUtil.validateToken(authToken)) {
+        if (userEmail != null && jwtUtil.validateToken(authToken)) {
             Claims claims = jwtUtil.getAllClaimsFromToken(authToken);
             List<String> rolesMap = claims.get("role", List.class);
             List<Roles> roles = new ArrayList<>();
@@ -39,7 +39,7 @@ public class AuthenticationManager implements ReactiveAuthenticationManager {
                 roles.add(Roles.valueOf(rolemap));
             }
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                    username,
+                    userEmail,
                     null,
                     roles.stream().map(authority ->
                             new SimpleGrantedAuthority(authority.name())).collect(Collectors.toList())

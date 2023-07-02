@@ -49,14 +49,14 @@ public class JWTUtil implements Serializable {
         return doGenerateToken(claims, user.getEmail());
     }
 
-    private String doGenerateToken(Map<String, Object> claims, String username) {
+    private String doGenerateToken(Map<String, Object> claims, String userEmail) {
         long expirationTimeLong = Long.parseLong(expirationTime); //in second
 
         final Date createdDate = new Date();
         final Date expirationDate = new Date(createdDate.getTime() + expirationTimeLong * 1000);
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(username)
+                .setSubject(userEmail)
                 .setIssuedAt(createdDate)
                 .setExpiration(expirationDate)
                 .signWith(new SecretKeySpec(DatatypeConverter.parseBase64Binary(secret), SignatureAlgorithm.HS256.getJcaName()))

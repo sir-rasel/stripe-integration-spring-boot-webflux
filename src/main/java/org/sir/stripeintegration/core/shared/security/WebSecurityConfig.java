@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -24,14 +25,14 @@ public class WebSecurityConfig {
         return http
                 .csrf(csrfSpec -> csrfSpec.disable())
                 .formLogin(formLoginSpec -> formLoginSpec.disable())
-                .httpBasic(httpBasicSpec -> httpBasicSpec.disable())
+                .httpBasic(Customizer.withDefaults())
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
                         .pathMatchers(HttpMethod.OPTIONS).permitAll()
                         .pathMatchers("/api/login", "/api/signup").permitAll()
                         .anyExchange().authenticated()
                 )
                 .authenticationManager(authenticationManager)
-//                .securityContextRepository(securityContextRepository)
+                .securityContextRepository(securityContextRepository)
                 .exceptionHandling(ex ->
                         ex.authenticationEntryPoint((swe, e) ->
                                 Mono.fromRunnable(() -> swe.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED))
