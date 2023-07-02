@@ -3,6 +3,7 @@ package org.sir.stripeintegration.core.shared.security;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -25,9 +26,9 @@ public class WebSecurityConfig {
                 .formLogin(formLoginSpec -> formLoginSpec.disable())
                 .httpBasic(httpBasicSpec -> httpBasicSpec.disable())
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
-//                                .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                                .pathMatchers("/api/login", "/api/signup").permitAll()
-                                .anyExchange().authenticated()
+                        .pathMatchers(HttpMethod.OPTIONS).permitAll()
+                        .pathMatchers("/api/login", "/api/signup").permitAll()
+                        .anyExchange().authenticated()
                 )
                 .authenticationManager(authenticationManager)
 //                .securityContextRepository(securityContextRepository)

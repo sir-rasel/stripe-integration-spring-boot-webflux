@@ -66,7 +66,7 @@ public class UserService implements IUserService {
         }
     }
 
-    private UserDto createUser(SignupRequestDto userData) {
+    private Mono<UserDto> createUser(SignupRequestDto userData) {
         UserEntity user = new UserEntity(
                 UUID.randomUUID(),
                 userData.getFirstName(),
@@ -79,7 +79,6 @@ public class UserService implements IUserService {
         user.setNewEntry(true);
 
         return userRepository.save(user)
-                .map(userEntity -> mapper.map(userEntity, UserDto.class))
-                .block();
+                .map(userEntity -> mapper.map(userEntity, UserDto.class));
     }
 }
