@@ -6,6 +6,7 @@ import org.sir.stripeintegration.core.application.dtos.customer.request.Customer
 import org.sir.stripeintegration.core.application.dtos.customer.response.CustomerDto;
 import org.sir.stripeintegration.core.application.interfaces.service.ICustomerService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/customer")
+@PreAuthorize("hasRole('USER')")
 public class CustomerController {
     private final ICustomerService customerService;
 
