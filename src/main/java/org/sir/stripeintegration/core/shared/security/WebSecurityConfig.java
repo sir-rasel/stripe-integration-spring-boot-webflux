@@ -3,7 +3,6 @@ package org.sir.stripeintegration.core.shared.security;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -22,25 +21,22 @@ public class WebSecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
-                .exceptionHandling()
-                .authenticationEntryPoint((swe, e) -> {
-                    return Mono.fromRunnable(() -> {
-                        swe.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                    });
-                }).accessDeniedHandler((swe, e) -> {
-                    return Mono.fromRunnable(() -> {
-                        swe.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
-                    });
-                }).and()
-                .csrf().disable()
-                .formLogin().disable()
-                .httpBasic().disable()
+                .csrf(csrfSpec -> csrfSpec.disable())
+                .formLogin(formLoginSpec -> formLoginSpec.disable())
+                .httpBasic(httpBasicSpec -> httpBasicSpec.disable())
+                .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
+//                                .pathMatchers(HttpMethod.OPTIONS).permitAll()
+                                .pathMatchers("/api/login", "/api/signup").permitAll()
+                                .anyExchange().authenticated()
+                )
                 .authenticationManager(authenticationManager)
-                .securityContextRepository(securityContextRepository)
-                .authorizeExchange()
-                .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                .pathMatchers("/login", "/signup").permitAll()
-                .anyExchange().authenticated()
-                .and().build();
+//                .securityContextRepository(securityContextRepository)
+                .exceptionHandling(ex ->
+                        ex.authenticationEntryPoint((swe, e) ->
+                                Mono.fromRunnable(() -> swe.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED))
+                        ).accessDeniedHandler((swe, e) ->
+                                Mono.fromRunnable(() -> swe.getResponse().setStatusCode(HttpStatus.FORBIDDEN))
+                        )
+                ).build();
     }
 }

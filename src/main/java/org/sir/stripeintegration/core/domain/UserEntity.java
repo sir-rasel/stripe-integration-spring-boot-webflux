@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.sir.stripeintegration.core.shared.EntityAuditFields;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @EntityScan
-@Builder
 public class UserEntity extends EntityAuditFields implements UserDetails, Persistable<UUID> {
     @Id
     private UUID id;
@@ -47,6 +45,20 @@ public class UserEntity extends EntityAuditFields implements UserDetails, Persis
     @NotEmpty(message = "Roles should not be empty")
     private List<@NotBlank(message = "Role should not be empty") String> roles;
     private Boolean active;
+
+    public UserEntity(UUID id, String firstName, String lastName, String password,
+                      String email, String address,
+                      List<@NotBlank(message = "Role should not be empty") String> roles,
+                      Boolean active) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.password = password;
+        this.email = email;
+        this.address = address;
+        this.roles = roles;
+        this.active = active;
+    }
 
     @Transient
     private boolean isNewEntry;

@@ -1,18 +1,18 @@
 package org.sir.stripeintegration.core.application.dtos.loginSignup.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
-@AllArgsConstructor
 @Data
 public class LoginRequestDto {
     @NotNull
     @NotEmpty
     @NotBlank
-    private String username;
+    @Email
+    private String userEmail;
 
     @NotNull
     @NotEmpty

@@ -1,10 +1,10 @@
 package org.sir.stripeintegration.core.application.dtos.loginSignup.response;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
+@Builder
 public class LoginResponseDto {
     private String token;
 

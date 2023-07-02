@@ -36,18 +36,22 @@ public class UserService implements IUserService {
 
     @Override
     public Mono<ResponseEntity<?>> validateLoginRequestAndGetUser(LoginRequestDto request) {
-        return findUserByUserName(request.getUsername()).map(userDetails -> {
-            if (passwordEncoder.encode(request.getPassword()).equals(userDetails.getPassword())) {
-                return ResponseEntity.ok(new LoginResponseDto(jwtUtil.generateToken(userDetails)));
-            } else {
-                logger.info("Password not matched");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-        }).defaultIfEmpty(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+        return findUserByUserName(request.getUserEmail())
+                .map(userDetails -> {
+                    if (passwordEncoder.encode(request.getPassword()).equals(userDetails.getPassword())) {
+                        return ResponseEntity.ok(LoginResponseDto.builder()
+                                .token(jwtUtil.generateToken(userDetails))
+                                .build());
+                    } else {
+                        logger.info("Password not matched");
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                    }
+                })
+                .defaultIfEmpty(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
-    private Mono<UserEntity> findUserByUserName(String username) {
-        Mono<UserEntity> user = userRepository.findByEmail(username);
+    private Mono<UserEntity> findUserByUserName(String userEmail) {
+        Mono<UserEntity> user = userRepository.findByEmail(userEmail);
         return user.switchIfEmpty(Mono.empty());
     }
 
@@ -63,17 +67,17 @@ public class UserService implements IUserService {
     }
 
     private UserDto createUser(SignupRequestDto userData) {
-        UserEntity user = UserEntity.builder()
-                .id(UUID.randomUUID())
-                .firstName(userData.getFirstName())
-                .lastName(userData.getLastName())
-                .password(userData.getPassword())
-                .email(userData.getEmail())
-                .address(userData.getAddress())
-                .active(userData.getActive())
-                .isNewEntry(true)
-                .build();
-        
+        UserEntity user = new UserEntity(
+                UUID.randomUUID(),
+                userData.getFirstName(),
+                userData.getLastName(),
+                userData.getPassword(),
+                userData.getEmail(),
+                userData.getAddress(),
+                userData.getRoles(),
+                userData.getActive());
+        user.setNewEntry(true);
+
         return userRepository.save(user)
                 .map(userEntity -> mapper.map(userEntity, UserDto.class))
                 .block();
