@@ -1,5 +1,6 @@
 package org.sir.stripeintegration.host.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.sir.stripeintegration.core.application.dtos.customer.request.CustomerCreateRequestDto;
 import org.sir.stripeintegration.core.application.dtos.customer.request.CustomerUpdateRequestDto;
@@ -34,13 +35,13 @@ public class CustomerController {
 
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<CustomerDto> addCustomer(@RequestBody CustomerCreateRequestDto requestDto) {
+    public Mono<CustomerDto> addCustomer(@RequestBody @Valid CustomerCreateRequestDto requestDto) {
         return customerService.addCustomer(requestDto);
     }
 
     @PutMapping("/update")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<CustomerDto> updateCustomer(@RequestBody CustomerUpdateRequestDto requestDto) {
+    public Mono<CustomerDto> updateCustomer(@RequestBody @Valid CustomerUpdateRequestDto requestDto) {
         return customerService.updateCustomer(requestDto);
     }
 

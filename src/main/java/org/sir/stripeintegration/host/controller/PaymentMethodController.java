@@ -1,5 +1,6 @@
 package org.sir.stripeintegration.host.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.sir.stripeintegration.core.application.dtos.paymentMethod.request.CreatePaymentMethodRequestDto;
 import org.sir.stripeintegration.core.application.dtos.paymentMethod.request.UpdatePaymentMethodRequestDto;
@@ -35,14 +36,14 @@ public class PaymentMethodController {
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<PaymentMethodDto> addCustomerPaymentMethod(
-            @RequestBody CreatePaymentMethodRequestDto requestDto) {
+            @RequestBody @Valid CreatePaymentMethodRequestDto requestDto) {
         return paymentMethodService.addCustomerPaymentMethod(requestDto);
     }
 
     @PutMapping("/update")
     @ResponseStatus(HttpStatus.OK)
     public Mono<PaymentMethodDto> updateCustomerPaymentMethod(
-            @RequestBody UpdatePaymentMethodRequestDto requestDto) {
+            @RequestBody @Valid UpdatePaymentMethodRequestDto requestDto) {
         return paymentMethodService.updateCustomerPaymentMethod(requestDto);
     }
 
