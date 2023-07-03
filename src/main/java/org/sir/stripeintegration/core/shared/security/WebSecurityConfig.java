@@ -23,12 +23,12 @@ public class WebSecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
-                .csrf(csrfSpec -> csrfSpec.disable())
-                .formLogin(formLoginSpec -> formLoginSpec.disable())
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .httpBasic(Customizer.withDefaults())
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
                         .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                        .pathMatchers("/api/login", "/api/signup").permitAll()
+                        .pathMatchers("/api/login", "/api/signup", "/api/refresh-token").permitAll()
                         .anyExchange().authenticated()
                 )
                 .authenticationManager(authenticationManager)

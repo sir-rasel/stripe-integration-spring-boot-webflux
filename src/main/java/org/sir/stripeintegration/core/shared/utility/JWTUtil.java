@@ -21,8 +21,11 @@ public class JWTUtil implements Serializable {
     @Value("${springbootwebflux.jjwt.secret}")
     private String secret;
 
-    @Value("${springbootwebflux.jjwt.expiration}")
-    private String expirationTime;
+    @Value("${springbootwebflux.jjwt.tokenexpiration}")
+    private String tokenExpirationTime;
+
+    @Value("${springbootwebflux.jjwt.refreshtokenexpiration}")
+    private String refreshTokenExpirationTime;
 
     public Claims getAllClaimsFromToken(String token) {
         return Jwts.parser()
@@ -30,7 +33,7 @@ public class JWTUtil implements Serializable {
                 .parseClaimsJws(token).getBody();
     }
 
-    public String getUsernameFromToken(String token) {
+    public String getUserEmailFromToken(String token) {
         return getAllClaimsFromToken(token).getSubject();
     }
 
@@ -46,10 +49,16 @@ public class JWTUtil implements Serializable {
     public String generateToken(UserEntity user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRoles());
-        return doGenerateToken(claims, user.getEmail());
+        return doGenerateToken(claims, user.getEmail(), tokenExpirationTime);
     }
 
-    private String doGenerateToken(Map<String, Object> claims, String userEmail) {
+    public String generateRefreshToken(UserEntity user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", user.getRoles());
+        return doGenerateToken(claims, user.getEmail(), refreshTokenExpirationTime);
+    }
+
+    private String doGenerateToken(Map<String, Object> claims, String userEmail, String expirationTime) {
         long expirationTimeLong = Long.parseLong(expirationTime); //in second
 
         final Date createdDate = new Date();

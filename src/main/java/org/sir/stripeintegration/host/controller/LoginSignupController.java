@@ -1,7 +1,9 @@
 package org.sir.stripeintegration.host.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.sir.stripeintegration.core.application.dtos.loginSignup.request.LoginRequestDto;
+import org.sir.stripeintegration.core.application.dtos.loginSignup.request.RefreshTokenDto;
 import org.sir.stripeintegration.core.application.dtos.loginSignup.request.SignupRequestDto;
 import org.sir.stripeintegration.core.application.interfaces.service.IUserService;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +22,17 @@ public class LoginSignupController {
     private IUserService userService;
 
     @PostMapping("/login")
-    public Mono<ResponseEntity<?>> login(@RequestBody LoginRequestDto request) {
-        return userService.validateLoginRequestAndGetUser(request);
+    public Mono<ResponseEntity<?>> login(@RequestBody @Valid LoginRequestDto request) {
+        return userService.validateLoginRequestAndGetTokenResponse(request);
     }
 
     @PostMapping("/signup")
-    public Mono<ResponseEntity<?>> createUser(@RequestBody SignupRequestDto user) {
+    public Mono<ResponseEntity<?>> createUser(@RequestBody @Valid SignupRequestDto user) {
         return userService.createUserOnSignup(user);
+    }
+
+    @PostMapping("/refresh-token")
+    public Mono<ResponseEntity<?>> refreshToken(@RequestBody @Valid RefreshTokenDto request) {
+        return userService.refreshTokenAndGetTokenResponse(request);
     }
 }

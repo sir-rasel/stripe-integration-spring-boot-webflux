@@ -1,5 +1,6 @@
 package org.sir.stripeintegration.host.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.sir.stripeintegration.core.application.dtos.paymentIntent.request.CreatePaymentIntentRequestDto;
 import org.sir.stripeintegration.core.application.dtos.paymentIntent.response.PaymentIntentDto;
@@ -34,7 +35,7 @@ public class PaymentIntentController {
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<PaymentIntentDto> addCustomerPaymentIntent(
-            @RequestBody CreatePaymentIntentRequestDto requestDto) {
+            @RequestBody @Valid CreatePaymentIntentRequestDto requestDto) {
         return paymentIntentService.addCustomerPaymentIntent(requestDto);
     }
 }

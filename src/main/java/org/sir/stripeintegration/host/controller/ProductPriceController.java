@@ -1,5 +1,6 @@
 package org.sir.stripeintegration.host.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.sir.stripeintegration.core.application.dtos.productPrice.request.CreateProductPriceRequestDto;
 import org.sir.stripeintegration.core.application.dtos.productPrice.request.UpdateProductPriceRequestDto;
@@ -37,14 +38,14 @@ public class ProductPriceController {
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ProductPriceDto> addProductPrice(
-            @RequestBody CreateProductPriceRequestDto requestDto) {
+            @RequestBody @Valid CreateProductPriceRequestDto requestDto) {
         return productPriceService.addProductPrice(requestDto);
     }
 
     @PutMapping("/update")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ProductPriceDto> updateProductPrice(
-            @RequestBody UpdateProductPriceRequestDto requestDto) {
+            @RequestBody @Valid UpdateProductPriceRequestDto requestDto) {
         return productPriceService.updateProductPrice(requestDto);
     }
 }

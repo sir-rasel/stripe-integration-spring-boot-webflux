@@ -1,6 +1,7 @@
 package org.sir.stripeintegration.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -46,10 +47,13 @@ public class UserEntity extends EntityAuditFields implements UserDetails, Persis
     private List<@NotBlank(message = "Role should not be empty") String> roles;
     private Boolean active;
 
+    @Nullable
+    private String refreshToken;
+
     public UserEntity(UUID id, String firstName, String lastName, String password,
                       String email, String address,
                       List<@NotBlank(message = "Role should not be empty") String> roles,
-                      Boolean active) {
+                      Boolean active, String refreshToken) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -58,6 +62,7 @@ public class UserEntity extends EntityAuditFields implements UserDetails, Persis
         this.address = address;
         this.roles = roles;
         this.active = active;
+        this.refreshToken = refreshToken;
     }
 
     @Transient

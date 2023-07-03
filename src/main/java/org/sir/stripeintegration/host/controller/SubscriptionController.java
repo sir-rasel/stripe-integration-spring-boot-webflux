@@ -1,5 +1,6 @@
 package org.sir.stripeintegration.host.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.sir.stripeintegration.core.application.dtos.subscription.request.CreateSubscriptionDto;
 import org.sir.stripeintegration.core.application.dtos.subscription.request.UpdateSubscriptionDto;
@@ -36,13 +37,13 @@ public class SubscriptionController {
 
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<SubscriptionDto> addSubscription(@RequestBody CreateSubscriptionDto requestDto) {
+    public Mono<SubscriptionDto> addSubscription(@RequestBody @Valid CreateSubscriptionDto requestDto) {
         return subscriptionService.addSubscription(requestDto);
     }
 
     @PutMapping("/update")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<SubscriptionDto> updateSubscription(@RequestBody UpdateSubscriptionDto requestDto) {
+    public Mono<SubscriptionDto> updateSubscription(@RequestBody @Valid UpdateSubscriptionDto requestDto) {
         return subscriptionService.updateSubscription(requestDto);
     }
 
