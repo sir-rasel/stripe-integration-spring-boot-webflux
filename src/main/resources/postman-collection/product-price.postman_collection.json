@@ -1,0 +1,113 @@
+{
+	"info": {
+		"_postman_id": "8eed7ffb-4ddb-40db-8c85-12772c708b15",
+		"name": "product-price",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "createPrice",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"currency\": \"usd\",\r\n    \"nickName\": \"P1 Price\",\r\n    \"productId\": \"prod_O8OURu44IdckPs\",\r\n    \"unitAmount\": 50,\r\n    \"recurring\": {\r\n        \"interval\": \"month\",\r\n        \"intervalCount\": 1\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/product-price/add",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"product-price",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getPricesOfProduct",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/product-price/all/product/prod_O8MyXURj8p9QsJ",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"product-price",
+						"all",
+						"product",
+						"prod_O8MyXURj8p9QsJ"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getPrice",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/product-price/price_1NK3GqD1Nw0D8DcC36LW185h",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"product-price",
+						"price_1NK3GqD1Nw0D8DcC36LW185h"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updatePrice",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": \"price_1NK3GqD1Nw0D8DcC36LW185h\",\r\n    \"active\": false,\r\n    \"nickName\": \"P1 Price Update\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/product-price/update",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"product-price",
+						"update"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
