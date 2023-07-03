@@ -1,0 +1,83 @@
+{
+	"info": {
+		"_postman_id": "449da0c5-7e65-43e3-9b6d-b7a6f1a3ea0d",
+		"name": "paymentIntent",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "createPaymentIntent",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"customerId\": \"cus_O6FbJi2c5K0WtM\",\r\n    \"amount\": 100,\r\n    \"currency\": \"usd\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/payment-intent/add",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"payment-intent",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getPaymentIntent",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/payment-intent/pi_3NIZV8D1Nw0D8DcC0SHdb7VB",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"payment-intent",
+						"pi_3NIZV8D1Nw0D8DcC0SHdb7VB"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getPaymentIntents",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/payment-intent/all/customer/cus_O6FbJi2c5K0WtM",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"payment-intent",
+						"all",
+						"customer",
+						"cus_O6FbJi2c5K0WtM"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
